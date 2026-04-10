@@ -132,6 +132,8 @@ export async function updateJob(
     has_lockbox?: boolean
     requested_date?: string
     requested_time_preference?: string
+    scheduled_date?: string
+    scheduled_time?: string
     estimated_duration_minutes?: number
     notes?: string
   }
@@ -166,6 +168,8 @@ export async function updateJob(
     has_lockbox?: boolean
     requested_date?: string | null
     requested_time_preference?: 'morning' | 'afternoon' | 'anytime' | 'flexible' | null
+    scheduled_date?: string | null
+    scheduled_time?: string | null
     estimated_duration_minutes?: number
     notes?: string | null
   } = {}
@@ -183,6 +187,8 @@ export async function updateJob(
     update.requested_time_preference = (data.requested_time_preference.trim() || null) as
       'morning' | 'afternoon' | 'anytime' | 'flexible' | null
   }
+  if (data.scheduled_date !== undefined) update.scheduled_date = data.scheduled_date.trim() || null
+  if (data.scheduled_time !== undefined) update.scheduled_time = data.scheduled_time.trim() || null
   if (data.estimated_duration_minutes !== undefined) {
     update.estimated_duration_minutes = data.estimated_duration_minutes
   }

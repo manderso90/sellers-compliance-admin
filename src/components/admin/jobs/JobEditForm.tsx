@@ -28,6 +28,8 @@ export function JobEditForm({ job }: JobEditFormProps) {
   const [hasLockbox, setHasLockbox] = useState(job.has_lockbox)
   const [requestedDate, setRequestedDate] = useState(job.requested_date ?? '')
   const [timePreference, setTimePreference] = useState(job.requested_time_preference ?? '')
+  const [scheduledDate, setScheduledDate] = useState(job.scheduled_date ?? '')
+  const [scheduledTime, setScheduledTime] = useState(job.scheduled_time?.slice(0, 5) ?? '')
   const [duration, setDuration] = useState(String(job.estimated_duration_minutes))
   const [notes, setNotes] = useState(job.notes ?? '')
 
@@ -43,6 +45,8 @@ export function JobEditForm({ job }: JobEditFormProps) {
     setHasLockbox(job.has_lockbox)
     setRequestedDate(job.requested_date ?? '')
     setTimePreference(job.requested_time_preference ?? '')
+    setScheduledDate(job.scheduled_date ?? '')
+    setScheduledTime(job.scheduled_time?.slice(0, 5) ?? '')
     setDuration(String(job.estimated_duration_minutes))
     setNotes(job.notes ?? '')
     setError('')
@@ -75,6 +79,8 @@ export function JobEditForm({ job }: JobEditFormProps) {
           has_lockbox: hasLockbox,
           requested_date: requestedDate || undefined,
           requested_time_preference: timePreference || undefined,
+          scheduled_date: scheduledDate,
+          scheduled_time: scheduledTime,
           estimated_duration_minutes: parseInt(duration) || 60,
           notes: notes.trim(),
         })
@@ -133,11 +139,19 @@ export function JobEditForm({ job }: JobEditFormProps) {
             </p>
           </div>
           <div>
-            <span className="text-slate-500">Requested Date</span>
+            <span className="text-slate-500">Scheduled Date</span>
+            <p className="font-medium text-slate-800">{job.scheduled_date || '—'}</p>
+          </div>
+          <div>
+            <span className="text-slate-500">Scheduled Time</span>
+            <p className="font-medium text-slate-800">{job.scheduled_time?.slice(0, 5) || '—'}</p>
+          </div>
+          <div>
+            <span className="text-slate-500">Client Requested Date</span>
             <p className="font-medium text-slate-800">{job.requested_date || '—'}</p>
           </div>
           <div>
-            <span className="text-slate-500">Time Preference</span>
+            <span className="text-slate-500">Client Time Preference</span>
             <p className="font-medium text-slate-800 capitalize">{job.requested_time_preference || '—'}</p>
           </div>
           {job.notes && (
@@ -227,14 +241,30 @@ export function JobEditForm({ job }: JobEditFormProps) {
         </div>
       </div>
 
-      {/* Scheduling preferences */}
+      {/* Dispatch schedule */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="edit_date">Requested Date</Label>
+          <Label htmlFor="edit_sched_date">Scheduled Date</Label>
+          <Input id="edit_sched_date" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="edit_sched_time">Scheduled Time</Label>
+          <Input id="edit_sched_time" type="time" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="edit_duration">Duration (min)</Label>
+          <Input id="edit_duration" type="number" min="15" step="15" value={duration} onChange={(e) => setDuration(e.target.value)} />
+        </div>
+      </div>
+
+      {/* Client preferences */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="edit_date">Client Requested Date</Label>
           <Input id="edit_date" type="date" value={requestedDate} onChange={(e) => setRequestedDate(e.target.value)} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="edit_time_pref">Time Preference</Label>
+          <Label htmlFor="edit_time_pref">Client Time Preference</Label>
           <select
             id="edit_time_pref"
             value={timePreference}
@@ -247,10 +277,6 @@ export function JobEditForm({ job }: JobEditFormProps) {
             <option value="anytime">Anytime</option>
             <option value="flexible">Flexible</option>
           </select>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="edit_duration">Duration (min)</Label>
-          <Input id="edit_duration" type="number" min="15" step="15" value={duration} onChange={(e) => setDuration(e.target.value)} />
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import { UnassignedBadge } from '@/components/admin/shared/UnassignedBadge'
 import {
   GanttChart,
   ClipboardList,
+  LayoutDashboard,
   Settings,
   Truck,
   UserCheck,
@@ -20,6 +21,11 @@ interface NavItem {
 }
 
 const operationsNav: NavItem[] = [
+  {
+    label: 'Command Center',
+    href: '/admin',
+    icon: LayoutDashboard,
+  },
   {
     label: 'Dispatch',
     href: '/admin/dispatch',
@@ -54,8 +60,8 @@ export function AdminSidebar({ unassignedCount = 0 }: { unassignedCount?: number
 
   function renderNavItem(item: NavItem) {
     const isActive =
-      item.href === '/admin/dispatch'
-        ? pathname === '/admin/dispatch' || pathname === '/admin'
+      item.href === '/admin'
+        ? pathname === '/admin'
         : pathname.startsWith(item.href)
 
     return (
@@ -80,7 +86,7 @@ export function AdminSidebar({ unassignedCount = 0 }: { unassignedCount?: number
     <aside className="w-60 min-h-screen bg-slate-900 flex flex-col">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-slate-800">
-        <Link href="/admin/dispatch" className="flex items-center gap-3">
+        <Link href="/admin" className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#FDE047] rounded-lg flex items-center justify-center shrink-0 neo-shadow-sm">
             <Truck className="w-4.5 h-4.5 text-black" />
           </div>
