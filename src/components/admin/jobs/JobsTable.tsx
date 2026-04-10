@@ -1,6 +1,7 @@
 'use client'
 
 import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
 import type { Job } from '@/types/database'
 
 const statusBadge: Record<string, string> = {
@@ -26,6 +27,8 @@ interface JobsTableProps {
 }
 
 export function JobsTable({ jobs }: JobsTableProps) {
+  const router = useRouter()
+
   return (
     <div className="bg-white border-2 border-black rounded-lg overflow-hidden neo-shadow">
       <table className="w-full text-sm">
@@ -53,7 +56,11 @@ export function JobsTable({ jobs }: JobsTableProps) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {jobs.map((job) => (
-            <tr key={job.id} className="hover:bg-[#FDE047]/10">
+            <tr
+              key={job.id}
+              onClick={() => router.push(`/admin/jobs/${job.id}`)}
+              className="hover:bg-[#FDE047]/10 cursor-pointer"
+            >
               <td className="px-5 py-3 font-medium text-slate-800">
                 {job.title || '\u2014'}
               </td>
