@@ -6,7 +6,9 @@ import { JobEditForm } from '@/components/admin/jobs/JobEditForm'
 import { JobHistory } from '@/components/admin/jobs/JobHistory'
 import { DeleteJobDialog } from '@/components/admin/jobs/DeleteJobDialog'
 import { InspectorAssignment } from '@/components/admin/jobs/InspectorAssignment'
+import { ScheduleSuggestionPanel } from '@/components/admin/jobs/ScheduleSuggestionPanel'
 import type { JobStatus } from '@/types/database'
+import { TERMINAL_STATUSES } from '@/services/job-lifecycle'
 import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -84,6 +86,14 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Smart Scheduling Suggestions */}
+      <div className="bg-white border-2 border-black rounded-lg p-5 neo-shadow">
+        <ScheduleSuggestionPanel
+          jobId={job.id}
+          isTerminal={(TERMINAL_STATUSES as readonly string[]).includes(job.status)}
+        />
       </div>
 
       {/* Editable Fields */}
