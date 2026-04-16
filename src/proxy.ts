@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
     const { data: rawProfile } = await adminClient
-      .from('team_members')
+      .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .single()
@@ -68,7 +68,7 @@ export async function proxy(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
     const { data: rawProfile } = await adminClient
-      .from('team_members')
+      .from('profiles')
       .select('is_active')
       .eq('id', user.id)
       .single()

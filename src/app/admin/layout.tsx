@@ -21,7 +21,7 @@ export default async function AdminLayout({
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
   const { data: rawProfile } = await adminClient
-    .from('team_members')
+    .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
