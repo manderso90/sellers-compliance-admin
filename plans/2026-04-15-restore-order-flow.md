@@ -1,7 +1,7 @@
 # Plan: Restore `/order` Public Booking Flow
 
 **Created:** 2026-04-15
-**Status:** Draft
+**Status:** Implemented
 **Request:** Restore the `/order` multi-step booking flow from orphan commit `d0cec1f` so customers can book a $125 compliance inspection from the public homepage, adapted to the current Seller's Compliance database schema.
 
 ---
@@ -460,3 +460,32 @@ If the business decides the public booking should also collect payment (rather t
 ### Idempotency of the form submit
 
 The current form calls `fetch('/api/inspections', ...)` once on submit. If the user refreshes the confirmation page, no duplicate is created (navigation is to `/order/confirmation?...`, not a re-POST). If the user hits the back button from confirmation and re-submits, they'll create a second inspection with the same customer (upsert) but a new property and new inspection. This is acceptable — duplicates in the admin queue are quickly spotted and deleted. If it becomes a problem, we can add a client-side idempotency key later.
+
+---
+
+## Implementation Notes
+
+**Implemented:** 2026-04-15
+
+### Summary
+
+Restored the `/order` public booking flow verbatim from orphan commit `d0cec1f`: 5-step booking form, confirmation page, `POST /api/inspections` server route, shadcn `textarea` primitive, Google Places address autocomplete, Resend email template, and server-side geocoding utility. Added 4 npm dependencies (`@vis.gl/react-google-maps`, `use-places-autocomplete`, `resend`, `zod`). Verified TypeScript compiles clean. Committed and pushed to main as `1903617`, which triggered Vercel auto-deploy. Remaining work is user-side: provision env vars on Vercel and run the end-to-end production smoke test.
+
+### Deviations from Plan
+
+- **Skipped Step 1** (migration file for `customers.email UNIQUE`): the constraint `customers_email_key` already exists in production (verified via Supabase SQL editor before implementation). No migration needed.
+- **Skipped Step 11** (Resend sender domain verification): user confirmed via screenshot that Resend has already delivered "New Inspection Request" emails from `info@sellerscompliance.com` on a prior deploy, so the sender domain `sellerscompliance.com` is verified.
+
+### Issues Encountered
+
+None. All files restored cleanly via `git show d0cec1f:<path>`. `npx tsc --noEmit` passed with zero errors on first run. `Property` type was already exported from `src/types/database.ts:312` as expected.
+
+### Remaining User Actions
+
+Steps 10 and 14 require user-side work that this implementation cannot do autonomously:
+
+- **Step 10 — Provision Vercel env vars** (Production + Preview):
+  - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (client, Places + Maps JS enabled, referrer-restricted)
+  - `GOOGLE_MAPS_API_KEY` (server, Geocoding API enabled)
+  - `RESEND_API_KEY` (confirmed working from prior deploys — just needs to still be present)
+- **Step 14 — Production smoke test**: after env vars are in place and the deploy finishes, visit `sellerscompliance.com`, click "Book $125 Inspection", complete a real booking, verify the three DB rows + email + appearance in `/admin/dispatch`.
