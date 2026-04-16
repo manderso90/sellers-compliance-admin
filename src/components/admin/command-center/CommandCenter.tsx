@@ -270,9 +270,6 @@ function WorkloadTable({
             <th className="text-left px-5 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Inspector
             </th>
-            <th className="text-left px-5 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Region
-            </th>
             <th className="text-center px-5 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Assigned
             </th>
@@ -295,9 +292,6 @@ function WorkloadTable({
             >
               <td className="px-5 py-2.5 font-medium text-slate-800">
                 {inspector.full_name}
-              </td>
-              <td className="px-5 py-2.5 text-slate-600">
-                {inspector.region}
               </td>
               <td className="px-5 py-2.5 text-center">
                 <span className="font-bold text-slate-900">

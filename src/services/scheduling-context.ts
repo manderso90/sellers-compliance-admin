@@ -5,7 +5,7 @@
 export interface SchedulingInspector {
   id: string
   full_name: string
-  region: string
+  region?: string
 }
 
 /** Minimal job shape needed for conflict checking on a given date */

@@ -19,9 +19,6 @@ export function InspectorTable({ inspectors }: InspectorTableProps) {
             <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Name
             </th>
-            <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Region
-            </th>
             <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:table-cell">
               Phone
             </th>
@@ -42,9 +39,6 @@ export function InspectorTable({ inspectors }: InspectorTableProps) {
             >
               <td className="px-5 py-3 font-medium text-slate-800">
                 {inspector.full_name}
-              </td>
-              <td className="px-5 py-3 text-slate-600">
-                {inspector.region}
               </td>
               <td className="px-5 py-3 text-slate-500 hidden md:table-cell">
                 {inspector.phone || '\u2014'}

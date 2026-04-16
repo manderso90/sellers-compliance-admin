@@ -9,7 +9,7 @@ interface InspectorAssignmentProps {
   jobId: string
   currentInspectorId: string | null
   currentInspectorName: string | null
-  inspectors: Pick<Inspector, 'id' | 'full_name' | 'region'>[]
+  inspectors: Pick<Inspector, 'id' | 'full_name'>[]
 }
 
 export function InspectorAssignment({
@@ -31,14 +31,6 @@ export function InspectorAssignment({
       }
     })
   }
-
-  // Group inspectors by region
-  const byRegion = inspectors.reduce<Record<string, typeof inspectors>>((acc, insp) => {
-    const region = insp.region || 'Other'
-    if (!acc[region]) acc[region] = []
-    acc[region].push(insp)
-    return acc
-  }, {})
 
   return (
     <div className="space-y-3">
@@ -72,14 +64,10 @@ export function InspectorAssignment({
           className="w-full h-9 rounded-md border-2 border-black bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
         >
           <option value="">— Unassigned —</option>
-          {Object.entries(byRegion).map(([region, regionInspectors]) => (
-            <optgroup key={region} label={region}>
-              {regionInspectors.map((insp) => (
-                <option key={insp.id} value={insp.id}>
-                  {insp.full_name}
-                </option>
-              ))}
-            </optgroup>
+          {inspectors.map((insp) => (
+            <option key={insp.id} value={insp.id}>
+              {insp.full_name}
+            </option>
           ))}
         </select>
       </div>

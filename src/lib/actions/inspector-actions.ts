@@ -2,35 +2,26 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import type { Database } from '@/types/database'
 
-export async function createInspector(data: {
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update']
+
+/**
+ * NOTE: Creating an inspector requires a corresponding auth.users row, which
+ * can only be provisioned through Supabase auth flows (invite, signup). The
+ * admin UI therefore surfaces this as an informational error rather than a
+ * silent no-op. To add inspectors, invite them via Supabase auth and then
+ * grant the 'inspector' role via updateInspector.
+ */
+export async function createInspector(_data: {
   full_name: string
   phone?: string
   email?: string
-  region?: string
   notes?: string
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
-
-  const name = data.full_name?.trim()
-  if (!name) throw new Error('Full name is required')
-
-  const { error } = await supabase.from('inspectors').insert({
-    full_name: name,
-    phone: data.phone?.trim() || null,
-    email: data.email?.trim() || null,
-    region: data.region?.trim() || 'Valley',
-    notes: data.notes?.trim() || null,
-  })
-
-  if (error) throw error
-
-  revalidatePath('/admin/inspectors')
-  revalidatePath('/admin/dispatch')
+  throw new Error(
+    'Inspectors must be invited through Supabase authentication. Add them via the auth provider, then assign the inspector role.'
+  )
 }
 
 export async function updateInspector(
@@ -39,9 +30,8 @@ export async function updateInspector(
     full_name?: string
     phone?: string
     email?: string
-    region?: string
     is_active?: boolean
-    notes?: string
+    roles?: string[]
   }
 ) {
   const supabase = await createClient()
@@ -54,25 +44,15 @@ export async function updateInspector(
     throw new Error('Full name is required')
   }
 
-  // Build typed update object
-  const update: {
-    full_name?: string
-    phone?: string | null
-    email?: string | null
-    region?: string
-    is_active?: boolean
-    notes?: string | null
-  } = {}
-
+  const update: ProfileUpdate = {}
   if (data.full_name !== undefined) update.full_name = data.full_name.trim()
   if (data.phone !== undefined) update.phone = data.phone.trim() || null
-  if (data.email !== undefined) update.email = data.email.trim() || null
-  if (data.region !== undefined) update.region = data.region.trim()
+  if (data.email !== undefined) update.email = data.email.trim()
   if (data.is_active !== undefined) update.is_active = data.is_active
-  if (data.notes !== undefined) update.notes = data.notes.trim() || null
+  if (data.roles !== undefined) update.roles = data.roles
 
   const { error } = await supabase
-    .from('inspectors')
+    .from('profiles')
     .update(update)
     .eq('id', inspectorId)
 
@@ -84,6 +64,12 @@ export async function updateInspector(
   revalidatePath('/admin/jobs')
 }
 
+/**
+ * We don't hard-delete profiles (the row FKs to auth.users and may be
+ * referenced by historical inspection rows). Instead we deactivate: set
+ * is_active = false so the inspector disappears from the active dispatch
+ * pool while preserving foreign-key integrity.
+ */
 export async function deleteInspector(inspectorId: string) {
   const supabase = await createClient()
   const {
@@ -91,23 +77,25 @@ export async function deleteInspector(inspectorId: string) {
   } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Block deletion if any jobs are still assigned to this inspector
+  // Block deactivation if any active inspections are still assigned
   const { count, error: countError } = await supabase
-    .from('jobs')
+    .from('inspections')
     .select('id', { count: 'exact', head: true })
-    .eq('assigned_to', inspectorId)
+    .eq('assigned_inspector_id', inspectorId)
+    .not('status', 'in', '("completed","cancelled")')
 
   if (countError) throw countError
 
   if (count && count > 0) {
     throw new Error(
-      `Cannot delete this inspector. ${count} job${count > 1 ? 's are' : ' is'} still assigned. Reassign or clear those jobs first.`
+      `Cannot deactivate this inspector. ${count} active inspection${count > 1 ? 's are' : ' is'} still assigned. Reassign or clear those first.`
     )
   }
 
+  const update: ProfileUpdate = { is_active: false }
   const { error } = await supabase
-    .from('inspectors')
-    .delete()
+    .from('profiles')
+    .update(update)
     .eq('id', inspectorId)
 
   if (error) throw error

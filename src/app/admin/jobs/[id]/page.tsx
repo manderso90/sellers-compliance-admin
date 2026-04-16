@@ -71,7 +71,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <div className="border-t border-slate-200 pt-5">
           <InspectorAssignment
             jobId={job.id}
-            currentInspectorId={job.assigned_to}
+            currentInspectorId={job.assigned_inspector_id}
             currentInspectorName={job.inspector_name}
             inspectors={inspectors}
           />

@@ -14,16 +14,25 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { LogOut, User } from 'lucide-react'
-import type { TeamMember } from '@/types/database'
+import type { Profile } from '@/types/database'
 
 const roleLabel: Record<string, string> = {
   admin: 'Admin',
   dispatcher: 'Dispatcher',
+  inspector: 'Inspector',
   field_tech: 'Field Tech',
 }
 
 interface AdminHeaderProps {
-  profile: TeamMember
+  profile: Profile
+}
+
+function primaryRole(roles: string[]): string {
+  // Display order: admin > dispatcher > inspector > first role
+  if (roles.includes('admin')) return 'admin'
+  if (roles.includes('dispatcher')) return 'dispatcher'
+  if (roles.includes('inspector')) return 'inspector'
+  return roles[0] ?? 'member'
 }
 
 export function AdminHeader({ profile }: AdminHeaderProps) {
@@ -44,11 +53,13 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
   const initials = profile.full_name
     ? profile.full_name
         .split(' ')
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2)
     : profile.email[0].toUpperCase()
+
+  const roleKey = primaryRole(profile.roles ?? [])
 
   return (
     <header className="h-14 bg-[#FFFDF5] border-b-2 border-black px-6 flex items-center justify-between shrink-0">
@@ -67,7 +78,7 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
                 <p className="text-sm font-medium text-slate-800 leading-tight">
                   {profile.full_name || 'Team Member'}
                 </p>
-                <p className="text-xs text-slate-500 leading-tight">{roleLabel[profile.role] || profile.role}</p>
+                <p className="text-xs text-slate-500 leading-tight">{roleLabel[roleKey] || roleKey}</p>
               </div>
             </div>
           </DropdownMenuTrigger>
@@ -110,7 +121,7 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
             <p className="text-sm font-medium text-slate-800 leading-tight">
               {profile.full_name || 'Team Member'}
             </p>
-            <p className="text-xs text-slate-500 leading-tight">{roleLabel[profile.role] || profile.role}</p>
+            <p className="text-xs text-slate-500 leading-tight">{roleLabel[roleKey] || roleKey}</p>
           </div>
         </div>
       )}

@@ -9,6 +9,9 @@ import { estimateDuration, type DurationEstimate } from '@/services/duration-est
 import { checkConflicts } from '@/services/conflict-detection'
 import { buildScheduleUpdate } from '@/services/dispatch-scheduling'
 
+type InspectionUpdate = Database['public']['Tables']['inspections']['Update']
+type StatusHistoryInsert = Database['public']['Tables']['inspection_status_history']['Insert']
+
 // ---------------------------------------------------------------------------
 // Supabase-backed SchedulingContext factory
 // ---------------------------------------------------------------------------
@@ -18,31 +21,36 @@ function createSupabaseSchedulingContext(): SchedulingContext {
     async getActiveInspectors() {
       const supabase = await createClient()
       const { data, error } = await supabase
-        .from('inspectors')
-        .select('id, full_name, region')
+        .from('profiles')
+        .select('id, full_name')
         .eq('is_active', true)
+        .contains('roles', ['inspector'])
         .order('full_name')
 
       if (error) throw error
-      return data ?? []
+      return (data ?? []).map((p) => ({
+        id: p.id,
+        full_name: p.full_name ?? '',
+      }))
     },
 
     async getJobsForDate(date: string) {
       const supabase = await createClient()
       const { data, error } = await supabase
-        .from('jobs')
-        .select('id, address, scheduled_time, scheduled_end, estimated_duration_minutes, assigned_to')
+        .from('inspections')
+        .select('id, scheduled_time, scheduled_end, estimated_duration_minutes, assigned_inspector_id, properties(street_address)')
         .eq('scheduled_date', date)
         .not('status', 'eq', 'cancelled')
 
       if (error) throw error
-      return (data ?? []).map((j) => ({
-        id: j.id,
-        address: j.address,
-        scheduled_time: j.scheduled_time,
-        scheduled_end: j.scheduled_end,
-        estimated_duration_minutes: j.estimated_duration_minutes,
-        assigned_to: j.assigned_to ?? '',
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        address: ((row as any).properties?.street_address as string | undefined) ?? '',
+        scheduled_time: row.scheduled_time,
+        scheduled_end: row.scheduled_end,
+        estimated_duration_minutes: row.estimated_duration_minutes,
+        assigned_to: row.assigned_inspector_id ?? '',
       }))
     },
   }
@@ -64,24 +72,27 @@ export async function generateSuggestions(jobId: string): Promise<SuggestionResu
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Fetch the target job
-  const { data: job, error } = await supabase
-    .from('jobs')
-    .select('id, title, address, city, has_lockbox, estimated_duration_minutes, requested_date, requested_time_preference')
+  // Fetch the target inspection with property join (for address/city)
+  const { data: inspection, error } = await supabase
+    .from('inspections')
+    .select('id, service_type, lockbox_code, estimated_duration_minutes, requested_date, requested_time_preference, properties(street_address, city)')
     .eq('id', jobId)
     .single()
 
-  if (error || !job) throw new Error('Job not found')
+  if (error || !inspection) throw new Error('Inspection not found')
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prop = (inspection as any).properties ?? {}
 
   const targetJob: SchedulingTargetJob = {
-    id: job.id,
-    title: job.title,
-    address: job.address,
-    city: job.city,
-    has_lockbox: job.has_lockbox,
-    estimated_duration_minutes: job.estimated_duration_minutes,
-    requested_date: job.requested_date,
-    requested_time_preference: job.requested_time_preference,
+    id: inspection.id,
+    title: inspection.service_type,
+    address: prop.street_address ?? '',
+    city: prop.city ?? '',
+    has_lockbox: !!inspection.lockbox_code,
+    estimated_duration_minutes: inspection.estimated_duration_minutes,
+    requested_date: inspection.requested_date,
+    requested_time_preference: inspection.requested_time_preference,
   }
 
   // Build context and generate suggestions
@@ -90,9 +101,9 @@ export async function generateSuggestions(jobId: string): Promise<SuggestionResu
 
   // Also return the duration estimate for UI display
   const durationEstimate = estimateDuration({
-    title: job.title,
-    has_lockbox: job.has_lockbox,
-    estimated_duration_minutes: job.estimated_duration_minutes,
+    title: targetJob.title,
+    has_lockbox: targetJob.has_lockbox,
+    estimated_duration_minutes: targetJob.estimated_duration_minutes,
   })
 
   return { suggestions, durationEstimate }
@@ -115,14 +126,14 @@ export async function applySuggestion(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Fetch current job state (needed by buildScheduleUpdate)
-  const { data: currentJob, error: jobError } = await supabase
-    .from('jobs')
-    .select('status, assigned_to, scheduled_date, scheduled_time, estimated_duration_minutes')
+  // Fetch current inspection state (needed by buildScheduleUpdate)
+  const { data: currentInspection, error: inspError } = await supabase
+    .from('inspections')
+    .select('status, assigned_inspector_id, scheduled_date, scheduled_time, estimated_duration_minutes')
     .eq('id', jobId)
     .single()
 
-  if (jobError || !currentJob) throw new Error('Job not found')
+  if (inspError || !currentInspection) throw new Error('Inspection not found')
 
   // --- Apply-time conflict recheck (required by plan) ---
   const context = createSupabaseSchedulingContext()
@@ -146,13 +157,7 @@ export async function applySuggestion(
 
   // --- Build the schedule update using existing service ---
   const { updateData, statusChanged, newStatus } = buildScheduleUpdate(
-    {
-      status: currentJob.status,
-      assigned_to: currentJob.assigned_to,
-      scheduled_date: currentJob.scheduled_date,
-      scheduled_time: currentJob.scheduled_time,
-      estimated_duration_minutes: currentJob.estimated_duration_minutes,
-    },
+    currentInspection,
     {
       assignedTo: inspectorId,
       scheduledDate: date,
@@ -164,21 +169,22 @@ export async function applySuggestion(
 
   // Write to DB
   const { error: updateError } = await supabase
-    .from('jobs')
-    .update(updateData as Database['public']['Tables']['jobs']['Update'])
+    .from('inspections')
+    .update(updateData as InspectionUpdate)
     .eq('id', jobId)
 
   if (updateError) throw updateError
 
   // Log status change if auto-confirmed
   if (statusChanged && newStatus) {
-    await supabase.from('job_status_history').insert({
-      job_id: jobId,
+    const historyPayload: StatusHistoryInsert = {
+      inspection_id: jobId,
       changed_by: user.id,
-      from_status: currentJob.status,
+      from_status: currentInspection.status,
       to_status: newStatus,
       note: 'Auto-confirmed via scheduling suggestion',
-    })
+    }
+    await supabase.from('inspection_status_history').insert(historyPayload)
   }
 
   // Revalidate all affected paths

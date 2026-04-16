@@ -155,12 +155,6 @@ export function DispatchClient({
 
   const editInspector = inspectors.find((i) => i.id === editInspectorId)
 
-  // Group inspectors by region for the timeline
-  const regionGroups = [
-    { region: 'Valley', inspectors: inspectors.filter(i => i.region === 'Valley') },
-    { region: 'Los Angeles', inspectors: inspectors.filter(i => i.region === 'Los Angeles') },
-  ].filter(g => g.inspectors.length > 0)
-
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] gap-4">
       {/* Header */}
@@ -169,7 +163,7 @@ export function DispatchClient({
       {/* Timeline + DnD context */}
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0">
-          <TimelineGrid regionGroups={regionGroups} onEditJob={handleEditJob} />
+          <TimelineGrid inspectors={inspectors} onEditJob={handleEditJob} />
         </div>
         <UnscheduledQueue jobs={unscheduledJobs} />
 

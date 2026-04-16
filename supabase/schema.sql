@@ -1,193 +1,122 @@
--- DisptchMama — Standalone Dispatch Board Schema
--- Run this against a fresh Supabase project
+-- Seller's Compliance — Production Schema Reference
+--
+-- This file documents the tables our application code targets. It is NOT a
+-- runnable migration — the live database already exists and was created by an
+-- earlier effort. Capture the authoritative DDL with `pg_dump` if you need a
+-- real migration artifact.
+--
+-- Tables touched by this application:
+--   profiles, customers, properties, inspections, inspection_status_history
+--
+-- Not managed here but present in the database:
+--   activity_log, inspection_items, inspection_photos, time_entries, etc.
 
--- ─── Team Members ───
-create table public.team_members (
+-- ─── profiles ───────────────────────────────────────────────────────────────
+-- 1:1 with auth.users. `roles` is an array so a single profile can hold
+-- multiple roles (e.g. ['admin', 'dispatcher']).
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   full_name text,
-  role text not null default 'field_tech' check (role in ('admin', 'dispatcher', 'field_tech')),
   phone text,
   is_active boolean not null default true,
   avatar_url text,
+  home_latitude double precision,
+  home_longitude double precision,
+  roles text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.team_members enable row level security;
-
-create policy "Authenticated users can read team_members"
-  on public.team_members for select
-  to authenticated
-  using (true);
-
-create policy "Admins can insert team_members"
-  on public.team_members for insert
-  to authenticated
-  with check (true);
-
-create policy "Admins can update team_members"
-  on public.team_members for update
-  to authenticated
-  using (true);
-
-create policy "Admins can delete team_members"
-  on public.team_members for delete
-  to authenticated
-  using (true);
-
--- ─── Inspectors ───
-create table public.inspectors (
+-- ─── customers ─────────────────────────────────────────────────────────────
+create table if not exists public.customers (
   id uuid primary key default gen_random_uuid(),
   full_name text not null,
+  email text not null,
   phone text,
-  email text,
-  is_active boolean not null default true,
-  region text not null default 'Valley',
+  company_name text,
+  customer_type text not null default 'seller',
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.inspectors enable row level security;
-
-create policy "Authenticated users can read inspectors"
-  on public.inspectors for select
-  to authenticated
-  using (true);
-
-create policy "Authenticated users can insert inspectors"
-  on public.inspectors for insert
-  to authenticated
-  with check (true);
-
-create policy "Authenticated users can update inspectors"
-  on public.inspectors for update
-  to authenticated
-  using (true);
-
-create policy "Authenticated users can delete inspectors"
-  on public.inspectors for delete
-  to authenticated
-  using (true);
-
--- ─── Jobs ───
-create table public.jobs (
+-- ─── properties ────────────────────────────────────────────────────────────
+create table if not exists public.properties (
   id uuid primary key default gen_random_uuid(),
-  title text not null default '',
-  description text,
-  client_name text not null default '',
-  client_phone text,
-  client_email text,
-  address text not null default '',
-  city text not null default '',
+  street_address text not null,
+  unit text,
+  city text not null,
   state text not null default 'CA',
-  zip_code text not null default '',
-  status text not null default 'pending' check (status in ('pending', 'confirmed', 'in_progress', 'completed', 'cancelled', 'on_hold')),
-  assigned_to uuid references public.inspectors(id) on delete set null,
+  zip_code text not null,
+  county text,
+  property_type text not null default 'single_family',
+  square_footage integer,
+  year_built integer,
+  latitude double precision,
+  longitude double precision,
+  bedrooms integer,
+  bathrooms numeric,
+  levels integer,
+  adu_count integer,
+  unit_count integer,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- ─── inspections ───────────────────────────────────────────────────────────
+-- Core record for a scheduled/completed job.
+create table if not exists public.inspections (
+  id uuid primary key default gen_random_uuid(),
+  property_id uuid not null references public.properties(id) on delete restrict,
+  customer_id uuid not null references public.customers(id) on delete restrict,
+  assigned_inspector_id uuid references public.profiles(id) on delete set null,
+  status text not null default 'requested'
+    check (status in ('requested','confirmed','in_progress','completed','cancelled','on_hold')),
   requested_date date,
-  requested_time_preference text check (requested_time_preference in ('morning', 'afternoon', 'anytime', 'flexible')),
+  requested_time_preference text,
   scheduled_date date,
   scheduled_time time,
   scheduled_end time,
-  estimated_duration_minutes integer not null default 60,
-  dispatch_status text not null default 'unscheduled' check (dispatch_status in ('unscheduled', 'scheduled', 'dispatched', 'en_route')),
-  notes text,
-  last_reassigned_by uuid,
-  last_reassigned_at timestamptz,
-  has_lockbox boolean not null default false,
+  completed_at timestamptz,
+  service_type text not null default 'Inspection',
+  includes_installation boolean not null default false,
+  access_instructions text,
+  lockbox_code text,
+  contact_on_site text,
+  escrow_number text,
+  escrow_officer_name text,
+  listing_agent_name text,
+  price numeric,
+  invoice_number text,
+  payment_status text,
+  admin_notes text,
+  public_notes text,
   schedule_notes text,
+  estimated_duration_minutes integer not null default 40,
+  inspection_labor_cost numeric,
+  inspection_travel_cost numeric,
+  started_at timestamptz,
+  work_started_at timestamptz,
+  inspector_outcome text,
+  inspector_notes text,
+  dispatch_status text not null default 'unscheduled'
+    check (dispatch_status in ('unscheduled','scheduled','dispatched','en_route')),
+  last_reassigned_by uuid references public.profiles(id) on delete set null,
+  last_reassigned_at timestamptz,
+  stripe_checkout_session_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.jobs enable row level security;
-
-create policy "Authenticated users can read jobs"
-  on public.jobs for select
-  to authenticated
-  using (true);
-
-create policy "Authenticated users can insert jobs"
-  on public.jobs for insert
-  to authenticated
-  with check (true);
-
-create policy "Authenticated users can update jobs"
-  on public.jobs for update
-  to authenticated
-  using (true);
-
-create policy "Authenticated users can delete jobs"
-  on public.jobs for delete
-  to authenticated
-  using (true);
-
--- ─── Job Status History ───
-create table public.job_status_history (
+-- ─── inspection_status_history ─────────────────────────────────────────────
+-- Audit trail of status transitions on an inspection.
+create table if not exists public.inspection_status_history (
   id uuid primary key default gen_random_uuid(),
-  job_id uuid not null references public.jobs(id) on delete cascade,
-  changed_by uuid references public.team_members(id) on delete set null,
+  inspection_id uuid not null references public.inspections(id) on delete cascade,
+  changed_by uuid references public.profiles(id) on delete set null,
   from_status text,
   to_status text not null,
   note text,
   created_at timestamptz not null default now()
 );
-
-alter table public.job_status_history enable row level security;
-
-create policy "Authenticated users can read job_status_history"
-  on public.job_status_history for select
-  to authenticated
-  using (true);
-
-create policy "Authenticated users can insert job_status_history"
-  on public.job_status_history for insert
-  to authenticated
-  with check (true);
-
--- ─── Trigger: auto-compute scheduled_end ───
-create or replace function public.compute_scheduled_end()
-returns trigger as $$
-begin
-  if NEW.scheduled_time is not null and NEW.estimated_duration_minutes is not null then
-    NEW.scheduled_end := NEW.scheduled_time + (NEW.estimated_duration_minutes || ' minutes')::interval;
-  else
-    NEW.scheduled_end := null;
-  end if;
-  return NEW;
-end;
-$$ language plpgsql;
-
-create trigger trg_compute_scheduled_end
-  before insert or update of scheduled_time, estimated_duration_minutes
-  on public.jobs
-  for each row
-  execute function public.compute_scheduled_end();
-
--- ─── Trigger: auto-update updated_at ───
-create or replace function public.update_updated_at()
-returns trigger as $$
-begin
-  NEW.updated_at := now();
-  return NEW;
-end;
-$$ language plpgsql;
-
-create trigger trg_jobs_updated_at
-  before update on public.jobs
-  for each row
-  execute function public.update_updated_at();
-
-create trigger trg_team_members_updated_at
-  before update on public.team_members
-  for each row
-  execute function public.update_updated_at();
-
-create trigger trg_inspectors_updated_at
-  before update on public.inspectors
-  for each row
-  execute function public.update_updated_at();
-
--- ─── Enable Realtime ───
-alter publication supabase_realtime add table public.jobs;

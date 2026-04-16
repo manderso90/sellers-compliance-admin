@@ -41,9 +41,7 @@ export function InspectorFormDialog({
   const [fullName, setFullName] = useState(inspector?.full_name ?? '')
   const [phone, setPhone] = useState(inspector?.phone ?? '')
   const [email, setEmail] = useState(inspector?.email ?? '')
-  const [region, setRegion] = useState(inspector?.region ?? 'Valley')
   const [isActive, setIsActive] = useState(inspector?.is_active ?? true)
-  const [notes, setNotes] = useState(inspector?.notes ?? '')
 
   // Show deactivation warning when toggling active inspector to inactive
   const showDeactivationWarning =
@@ -53,9 +51,7 @@ export function InspectorFormDialog({
     setFullName(inspector?.full_name ?? '')
     setPhone(inspector?.phone ?? '')
     setEmail(inspector?.email ?? '')
-    setRegion(inspector?.region ?? 'Valley')
     setIsActive(inspector?.is_active ?? true)
-    setNotes(inspector?.notes ?? '')
     setError('')
   }
 
@@ -75,17 +71,13 @@ export function InspectorFormDialog({
             full_name: fullName,
             phone,
             email,
-            region,
             is_active: isActive,
-            notes,
           })
         } else {
           await createInspector({
             full_name: fullName,
             phone,
             email,
-            region,
-            notes,
           })
         }
         setOpen(false)
@@ -118,7 +110,7 @@ export function InspectorFormDialog({
           <DialogDescription>
             {isEdit
               ? 'Update inspector details below.'
-              : 'Enter details for the new inspector.'}
+              : 'Inspectors are invited through Supabase authentication. Once they have signed up, grant them the inspector role from this screen.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -153,37 +145,6 @@ export function InspectorFormDialog({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="john@example.com"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Region</Label>
-            <div className="flex gap-4">
-              {['Valley', 'Los Angeles'].map((r) => (
-                <label key={r} className="flex items-center gap-2 text-sm cursor-pointer">
-                  <input
-                    type="radio"
-                    name="region"
-                    value={r}
-                    checked={region === r}
-                    onChange={(e) => setRegion(e.target.value)}
-                    className="accent-slate-900"
-                  />
-                  {r}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="notes">Notes</Label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              placeholder="Optional notes..."
             />
           </div>
 

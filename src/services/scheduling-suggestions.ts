@@ -17,7 +17,7 @@ import { estimateDuration } from '@/services/duration-estimation'
 export interface ScheduleSuggestion {
   inspectorId: string
   inspectorName: string
-  inspectorRegion: string
+  inspectorRegion: string | undefined
   date: string
   time: string
   durationMinutes: number
@@ -44,10 +44,10 @@ const VALLEY_CITIES = new Set([
 ])
 
 function matchRegion(
-  inspectorRegion: string,
+  inspectorRegion: string | undefined,
   jobCity: string
 ): 'full' | 'partial' | 'none' {
-  if (!jobCity) return 'partial'
+  if (!inspectorRegion || !jobCity) return 'partial'
 
   const cityLower = jobCity.toLowerCase().trim()
   const regionLower = inspectorRegion.toLowerCase().trim()

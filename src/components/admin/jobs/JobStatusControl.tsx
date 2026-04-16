@@ -6,7 +6,7 @@ import { getNextStatuses, TERMINAL_STATUSES } from '@/services/job-lifecycle'
 import type { JobStatus } from '@/types/database'
 
 const statusLabel: Record<string, string> = {
-  pending: 'Pending',
+  requested: 'Requested',
   confirmed: 'Confirmed',
   in_progress: 'In Progress',
   completed: 'Completed',
@@ -15,7 +15,7 @@ const statusLabel: Record<string, string> = {
 }
 
 const statusBadge: Record<string, string> = {
-  pending: 'bg-[#FDE047]/20 text-amber-800 border-amber-400',
+  requested: 'bg-[#FDE047]/20 text-amber-800 border-amber-400',
   confirmed: 'bg-[#2563EB]/10 text-blue-800 border-blue-400',
   in_progress: 'bg-purple-100 text-purple-800 border-purple-400',
   completed: 'bg-green-100 text-green-800 border-green-400',
@@ -50,7 +50,7 @@ export function JobStatusControl({ jobId, currentStatus }: JobStatusControlProps
     <div className="space-y-3">
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium text-slate-500">Status</span>
-        <span className={`text-xs px-2.5 py-1 rounded-md font-bold border-2 ${statusBadge[currentStatus] ?? statusBadge.pending}`}>
+        <span className={`text-xs px-2.5 py-1 rounded-md font-bold border-2 ${statusBadge[currentStatus] ?? statusBadge.requested}`}>
           {statusLabel[currentStatus] ?? currentStatus}
         </span>
       </div>

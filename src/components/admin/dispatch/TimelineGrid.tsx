@@ -123,16 +123,11 @@ function InspectorRow({
   )
 }
 
-interface RegionGroup {
-  region: string
-  inspectors: DispatchInspector[]
-}
-
 export function TimelineGrid({
-  regionGroups,
+  inspectors,
   onEditJob,
 }: {
-  regionGroups: RegionGroup[]
+  inspectors: DispatchInspector[]
   onEditJob: (job: DispatchJob, inspectorId: string) => void
 }) {
   return (
@@ -158,25 +153,11 @@ export function TimelineGrid({
           </div>
         </div>
 
-        {/* Inspector rows — scrollable with max height, grouped by region */}
+        {/* Inspector rows — scrollable with max height */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {regionGroups.length > 0 ? (
-            regionGroups.map((group) => (
-              <div key={group.region}>
-                {/* Region header */}
-                <div className="flex border-b-2 border-black bg-[#2563EB]/10">
-                  <div className="w-40 shrink-0 px-3 py-1.5 border-r-2 border-black sticky left-0 z-10 bg-[#2563EB]/10">
-                    <span className="text-xs font-semibold text-[#2563EB] uppercase tracking-wide font-[Syne]">
-                      {group.region}
-                    </span>
-                  </div>
-                  <div className="flex-1" style={{ minWidth: HOURS.length * HOUR_WIDTH_PX }} />
-                </div>
-                {/* Inspector rows for this region */}
-                {group.inspectors.map((inspector) => (
-                  <InspectorRow key={inspector.id} inspector={inspector} onEditJob={onEditJob} />
-                ))}
-              </div>
+          {inspectors.length > 0 ? (
+            inspectors.map((inspector) => (
+              <InspectorRow key={inspector.id} inspector={inspector} onEditJob={onEditJob} />
             ))
           ) : (
             <div className="py-12 text-center text-sm text-slate-400">

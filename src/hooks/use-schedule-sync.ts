@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const SCHEDULING_FIELDS = [
-  'assigned_to',
+  'assigned_inspector_id',
   'scheduled_date',
   'scheduled_time',
   'scheduled_end',
@@ -15,7 +15,7 @@ const SCHEDULING_FIELDS = [
 ]
 
 /**
- * Subscribe to jobs table changes via Supabase realtime.
+ * Subscribe to inspections table changes via Supabase realtime.
  * Triggers router.refresh() when scheduling-related fields change,
  * enabling cross-tab / cross-user sync on any scheduling page.
  */
@@ -32,7 +32,7 @@ export function useScheduleSync() {
         {
           event: '*',
           schema: 'public',
-          table: 'jobs',
+          table: 'inspections',
         },
         (payload) => {
           const oldData = payload.old as Record<string, unknown>

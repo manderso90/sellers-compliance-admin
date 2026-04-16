@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { Job } from '@/types/database'
 
 const statusBadge: Record<string, string> = {
-  pending: 'bg-[#FDE047]/20 text-amber-800 border border-amber-400',
+  requested: 'bg-[#FDE047]/20 text-amber-800 border border-amber-400',
   confirmed: 'bg-[#2563EB]/10 text-blue-800 border border-blue-400',
   in_progress: 'bg-purple-100 text-purple-800 border border-purple-400',
   completed: 'bg-green-100 text-green-800 border border-green-400',
@@ -14,7 +14,7 @@ const statusBadge: Record<string, string> = {
 }
 
 const statusLabel: Record<string, string> = {
-  pending: 'Pending',
+  requested: 'Requested',
   confirmed: 'Confirmed',
   in_progress: 'In Progress',
   completed: 'Completed',
@@ -73,7 +73,7 @@ export function JobsTable({ jobs }: JobsTableProps) {
                 </span>
               </td>
               <td className="px-5 py-3">
-                <span className={`text-xs px-2 py-1 rounded-md font-medium ${statusBadge[job.status] ?? statusBadge.pending}`}>
+                <span className={`text-xs px-2 py-1 rounded-md font-medium ${statusBadge[job.status] ?? statusBadge.requested}`}>
                   {statusLabel[job.status] ?? job.status}
                 </span>
               </td>

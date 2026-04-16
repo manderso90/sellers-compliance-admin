@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getInspectorById, getInspectorJobs } from '@/lib/queries/inspectors'
 import { InspectorFormDialog } from '@/components/admin/inspectors/InspectorFormDialog'
 import { DeleteInspectorDialog } from '@/components/admin/inspectors/DeleteInspectorDialog'
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Clock, Briefcase } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, Calendar, Clock, Briefcase } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface InspectorDetailPageProps {
@@ -35,13 +35,9 @@ export default async function InspectorDetailPage({
             Back to Inspectors
           </Link>
           <h1 className="text-xl font-semibold text-slate-900 font-[Syne]">
-            {inspector.full_name}
+            {inspector.full_name ?? 'Unnamed'}
           </h1>
           <div className="flex items-center gap-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {inspector.region}
-            </span>
             <span
               className={`px-2 py-0.5 rounded-md font-medium ${
                 inspector.is_active
@@ -62,7 +58,7 @@ export default async function InspectorDetailPage({
           />
           <DeleteInspectorDialog
             inspectorId={inspector.id}
-            inspectorName={inspector.full_name}
+            inspectorName={inspector.full_name ?? 'Unnamed'}
             assignedJobCount={jobData.total}
           />
         </div>
@@ -83,19 +79,10 @@ export default async function InspectorDetailPage({
             {inspector.email || 'No email'}
           </div>
           <div className="flex items-center gap-2 text-slate-600">
-            <MapPin className="w-4 h-4 text-slate-400" />
-            {inspector.region}
-          </div>
-          <div className="flex items-center gap-2 text-slate-600">
             <Calendar className="w-4 h-4 text-slate-400" />
             Added {format(new Date(inspector.created_at), 'MMM d, yyyy')}
           </div>
         </div>
-        {inspector.notes && (
-          <div className="mt-4 pt-4 border-t border-slate-200">
-            <p className="text-sm text-slate-500">{inspector.notes}</p>
-          </div>
-        )}
       </div>
 
       {/* Workload Summary */}
@@ -136,7 +123,7 @@ export default async function InspectorDetailPage({
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-800">
-                    {job.title} — {job.address}
+                    {job.service_type}
                   </span>
                   <span className="text-xs text-slate-400">
                     {job.status}

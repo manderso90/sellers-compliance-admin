@@ -14,8 +14,7 @@ export interface RiskJob {
 
 export interface InspectorWorkloadItem {
   id: string
-  full_name: string
-  region: string
+  full_name: string | null
   is_active: boolean
   totalAssigned: number
   todayCount: number
@@ -50,26 +49,29 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
   const today = new Date().toISOString().split('T')[0]
 
   // Three parallel queries
-  const [jobsResult, inspectorsResult, todayCountResult] = await Promise.all([
-    // All non-terminal jobs
+  const [inspectionsResult, inspectorsResult, todayCountResult] = await Promise.all([
+    // All non-terminal inspections with property join for address
     supabase
-      .from('jobs')
-      .select('id, title, address, status, dispatch_status, assigned_to, scheduled_date')
+      .from('inspections')
+      .select('id, service_type, status, dispatch_status, assigned_inspector_id, scheduled_date, properties(street_address)')
       .not('status', 'in', '("completed","cancelled")'),
-    // All inspectors
-    supabase.from('inspectors').select('id, full_name, region, is_active'),
+    // All inspector profiles
+    supabase
+      .from('profiles')
+      .select('id, full_name, is_active')
+      .contains('roles', ['inspector']),
     // Today's scheduled count
     supabase
-      .from('jobs')
+      .from('inspections')
       .select('id', { count: 'exact', head: true })
       .eq('scheduled_date', today)
       .not('status', 'in', '("completed","cancelled")'),
   ])
 
-  if (jobsResult.error) throw jobsResult.error
+  if (inspectionsResult.error) throw inspectionsResult.error
   if (inspectorsResult.error) throw inspectorsResult.error
 
-  const jobs = jobsResult.data ?? []
+  const inspections = inspectionsResult.data ?? []
   const inspectors = inspectorsResult.data ?? []
   const todayScheduledCount = todayCountResult.count ?? 0
 
@@ -81,71 +83,76 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
 
   // --- Summary counts ---
   const byStatus: Record<string, number> = {}
-  for (const job of jobs) {
-    byStatus[job.status] = (byStatus[job.status] ?? 0) + 1
+  for (const insp of inspections) {
+    byStatus[insp.status] = (byStatus[insp.status] ?? 0) + 1
   }
 
-  const unassignedPendingCount = jobs.filter(
-    (j) => j.status === 'pending' && !j.assigned_to
+  const unassignedPendingCount = inspections.filter(
+    (i) => i.status === 'requested' && !i.assigned_inspector_id
   ).length
 
   const onHoldCount = byStatus['on_hold'] ?? 0
 
+  // Helper to convert to RiskJob shape
+  function toRiskJob(row: typeof inspections[number]): RiskJob {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prop = (row as any).properties ?? {}
+    return {
+      id: row.id,
+      title: row.service_type,
+      address: prop.street_address ?? '',
+      status: row.status as JobStatus,
+      dispatch_status: row.dispatch_status as DispatchStatus,
+      assigned_to: row.assigned_inspector_id,
+      inspector_name: row.assigned_inspector_id
+        ? (inspectorMap.get(row.assigned_inspector_id)?.full_name ?? null)
+        : null,
+      scheduled_date: row.scheduled_date,
+    }
+  }
+
   // --- At-risk: Critical ---
+  const confirmedUnscheduled = inspections
+    .filter((i) => i.status === 'confirmed' && (!i.scheduled_date || !i.assigned_inspector_id))
+    .map(toRiskJob)
 
-  // R2: Confirmed but unscheduled
-  const confirmedUnscheduled = jobs
+  const inactiveInspector = inspections
+    .filter((i) => i.assigned_inspector_id && inactiveIds.has(i.assigned_inspector_id))
+    .map(toRiskJob)
+
+  const overdueUnconfirmed = inspections
     .filter(
-      (j) => j.status === 'confirmed' && (!j.scheduled_date || !j.assigned_to)
+      (i) =>
+        i.status === 'requested' &&
+        i.scheduled_date !== null &&
+        i.scheduled_date < today
     )
-    .map((j) => toRiskJob(j, inspectorMap))
-
-  // R3: Scheduled with inactive inspector
-  const inactiveInspector = jobs
-    .filter((j) => j.assigned_to && inactiveIds.has(j.assigned_to))
-    .map((j) => toRiskJob(j, inspectorMap))
-
-  // R5: Overdue unconfirmed
-  const overdueUnconfirmed = jobs
-    .filter(
-      (j) =>
-        j.status === 'pending' &&
-        j.scheduled_date !== null &&
-        j.scheduled_date < today
-    )
-    .map((j) => toRiskJob(j, inspectorMap))
+    .map(toRiskJob)
 
   // --- At-risk: Needs Attention ---
+  const unassignedPending = inspections
+    .filter((i) => i.status === 'requested' && !i.assigned_inspector_id)
+    .map(toRiskJob)
 
-  // R1: Unassigned pending
-  const unassignedPending = jobs
-    .filter((j) => j.status === 'pending' && !j.assigned_to)
-    .map((j) => toRiskJob(j, inspectorMap))
+  const onHold = inspections
+    .filter((i) => i.status === 'on_hold')
+    .map(toRiskJob)
 
-  // R4: On hold
-  const onHold = jobs
-    .filter((j) => j.status === 'on_hold')
-    .map((j) => toRiskJob(j, inspectorMap))
-
-  // R6: Assigned but no schedule
-  const assignedNoSchedule = jobs
-    .filter((j) => j.assigned_to && !j.scheduled_date)
-    .map((j) => toRiskJob(j, inspectorMap))
+  const assignedNoSchedule = inspections
+    .filter((i) => i.assigned_inspector_id && !i.scheduled_date)
+    .map(toRiskJob)
 
   // --- Inspector workload ---
-  const workloadMap = new Map<
-    string,
-    { totalAssigned: number; todayCount: number }
-  >()
+  const workloadMap = new Map<string, { totalAssigned: number; todayCount: number }>()
   for (const inspector of inspectors) {
     workloadMap.set(inspector.id, { totalAssigned: 0, todayCount: 0 })
   }
-  for (const job of jobs) {
-    if (!job.assigned_to) continue
-    const entry = workloadMap.get(job.assigned_to)
+  for (const insp of inspections) {
+    if (!insp.assigned_inspector_id) continue
+    const entry = workloadMap.get(insp.assigned_inspector_id)
     if (entry) {
       entry.totalAssigned++
-      if (job.scheduled_date === today) entry.todayCount++
+      if (insp.scheduled_date === today) entry.todayCount++
     }
   }
 
@@ -155,7 +162,6 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       return {
         id: i.id,
         full_name: i.full_name,
-        region: i.region,
         is_active: i.is_active,
         totalAssigned: w.totalAssigned,
         todayCount: w.todayCount,
@@ -164,47 +170,13 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
     .sort((a, b) => b.totalAssigned - a.totalAssigned)
 
   return {
-    totalActiveJobs: jobs.length,
+    totalActiveJobs: inspections.length,
     byStatus,
     unassignedPendingCount,
     todayScheduledCount,
     onHoldCount,
-    critical: {
-      confirmedUnscheduled,
-      inactiveInspector,
-      overdueUnconfirmed,
-    },
-    needsAttention: {
-      unassignedPending,
-      onHold,
-      assignedNoSchedule,
-    },
+    critical: { confirmedUnscheduled, inactiveInspector, overdueUnconfirmed },
+    needsAttention: { unassignedPending, onHold, assignedNoSchedule },
     inspectorWorkload,
-  }
-}
-
-function toRiskJob(
-  job: {
-    id: string
-    title: string
-    address: string
-    status: string
-    dispatch_status: string
-    assigned_to: string | null
-    scheduled_date: string | null
-  },
-  inspectorMap: Map<string, { id: string; full_name: string }>
-): RiskJob {
-  return {
-    id: job.id,
-    title: job.title,
-    address: job.address,
-    status: job.status as JobStatus,
-    dispatch_status: job.dispatch_status as DispatchStatus,
-    assigned_to: job.assigned_to,
-    inspector_name: job.assigned_to
-      ? (inspectorMap.get(job.assigned_to)?.full_name ?? null)
-      : null,
-    scheduled_date: job.scheduled_date,
   }
 }

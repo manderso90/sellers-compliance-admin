@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateSuggestions, applySuggestion, type SuggestionResult } from '@/lib/actions/scheduling-actions'
 import type { ScheduleSuggestion } from '@/services/scheduling-suggestions'
-import { Sparkles, Clock, MapPin, User, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react'
+import { Sparkles, Clock, User, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react'
 
 interface ScheduleSuggestionPanelProps {
   jobId: string
@@ -175,12 +175,8 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
                     </span>
                   </div>
 
-                  {/* Region + Workload */}
+                  {/* Workload */}
                   <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {s.inspectorRegion}
-                    </span>
                     <span>{s.existingJobCount} job{s.existingJobCount !== 1 ? 's' : ''} that day</span>
                     <span>{s.durationMinutes} min</span>
                   </div>
@@ -188,8 +184,6 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
                   {/* Score breakdown */}
                   <div className="flex items-center gap-2 text-[11px] text-slate-400">
                     <span>Workload: {s.factors.workload}</span>
-                    <span className="text-slate-300">·</span>
-                    <span>Region: {s.factors.regionMatch}</span>
                     <span className="text-slate-300">·</span>
                     <span>Time: {s.factors.timePreference}</span>
                   </div>

@@ -6,8 +6,8 @@ import { checkConflicts } from '@/services/conflict-detection'
 import { buildScheduleUpdate, buildUnscheduleUpdate } from '@/services/dispatch-scheduling'
 import type { Database } from '@/types/database'
 
-type JobUpdate = Database['public']['Tables']['jobs']['Update']
-type StatusHistoryInsert = Database['public']['Tables']['job_status_history']['Insert']
+type InspectionUpdate = Database['public']['Tables']['inspections']['Update']
+type StatusHistoryInsert = Database['public']['Tables']['inspection_status_history']['Insert']
 
 export interface ScheduleUpdate {
   jobId: string
@@ -31,13 +31,13 @@ export async function updateSchedule(update: ScheduleUpdate): Promise<ScheduleRe
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) throw new Error('Unauthorized')
 
-  // 2. Fetch current job state
-  const { data: currentJob, error: jobError } = await supabase
-    .from('jobs')
-    .select('status, assigned_to, scheduled_date, scheduled_time, estimated_duration_minutes')
+  // 2. Fetch current inspection state
+  const { data: currentInspection, error: inspError } = await supabase
+    .from('inspections')
+    .select('status, assigned_inspector_id, scheduled_date, scheduled_time, estimated_duration_minutes')
     .eq('id', update.jobId)
     .single()
-  if (jobError || !currentJob) throw new Error('Job not found')
+  if (inspError || !currentInspection) throw new Error('Inspection not found')
 
   // 3. Determine if this is an unschedule operation
   const isUnschedule = 'assignedTo' in update && update.assignedTo === null
@@ -47,30 +47,36 @@ export async function updateSchedule(update: ScheduleUpdate): Promise<ScheduleRe
   let newStatus: string | undefined
 
   if (isUnschedule) {
-    // Unschedule path
-    const result = buildUnscheduleUpdate(currentJob, user.id)
+    const result = buildUnscheduleUpdate(currentInspection, user.id)
     updateData = result.updateData
     statusChanged = result.statusChanged
     newStatus = result.newStatus
   } else {
-    // Schedule/reschedule path — run conflict detection
-    const effectiveInspectorId = 'assignedTo' in update ? update.assignedTo : currentJob.assigned_to
-    const effectiveDate = 'scheduledDate' in update ? update.scheduledDate : currentJob.scheduled_date
-    const effectiveTime = 'scheduledTime' in update ? update.scheduledTime : currentJob.scheduled_time
-    const effectiveDuration = update.estimatedDurationMinutes ?? currentJob.estimated_duration_minutes
+    const effectiveInspectorId = 'assignedTo' in update ? update.assignedTo : currentInspection.assigned_inspector_id
+    const effectiveDate = 'scheduledDate' in update ? update.scheduledDate : currentInspection.scheduled_date
+    const effectiveTime = 'scheduledTime' in update ? update.scheduledTime : currentInspection.scheduled_time
+    const effectiveDuration = update.estimatedDurationMinutes ?? currentInspection.estimated_duration_minutes
 
     if (effectiveInspectorId && effectiveDate && effectiveTime) {
-      // 4. Fetch existing jobs for conflict check
-      const { data: existingJobs } = await supabase
-        .from('jobs')
-        .select('id, address, scheduled_time, scheduled_end, estimated_duration_minutes')
-        .eq('assigned_to', effectiveInspectorId)
+      // Fetch existing inspections for conflict check
+      const { data: existingInspections } = await supabase
+        .from('inspections')
+        .select('id, scheduled_time, scheduled_end, estimated_duration_minutes, properties(street_address)')
+        .eq('assigned_inspector_id', effectiveInspectorId)
         .eq('scheduled_date', effectiveDate)
         .neq('status', 'cancelled')
 
-      // 5. Check conflicts
+      const conflictInput = (existingInspections ?? []).map((r) => ({
+        id: r.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        address: ((r as any).properties?.street_address as string | undefined) ?? '',
+        scheduled_time: r.scheduled_time,
+        scheduled_end: r.scheduled_end,
+        estimated_duration_minutes: r.estimated_duration_minutes,
+      }))
+
       const conflicts = checkConflicts(
-        existingJobs ?? [],
+        conflictInput,
         effectiveTime,
         effectiveDuration,
         update.jobId
@@ -84,8 +90,7 @@ export async function updateSchedule(update: ScheduleUpdate): Promise<ScheduleRe
       }
     }
 
-    // 6. Build schedule update
-    const result = buildScheduleUpdate(currentJob, update, user.id)
+    const result = buildScheduleUpdate(currentInspection, update, user.id)
     updateData = result.updateData
     statusChanged = result.statusChanged
     newStatus = result.newStatus
@@ -93,17 +98,17 @@ export async function updateSchedule(update: ScheduleUpdate): Promise<ScheduleRe
 
   // 7. Persist to Supabase
   const { error: updateError } = await supabase
-    .from('jobs')
-    .update(updateData as JobUpdate)
+    .from('inspections')
+    .update(updateData as InspectionUpdate)
     .eq('id', update.jobId)
-  if (updateError) throw new Error('Failed to update job')
+  if (updateError) throw new Error('Failed to update inspection')
 
   // 8. Log status change to history
   if (statusChanged && newStatus) {
-    await supabase.from('job_status_history').insert({
-      job_id: update.jobId,
+    await supabase.from('inspection_status_history').insert({
+      inspection_id: update.jobId,
       changed_by: user.id,
-      from_status: currentJob.status,
+      from_status: currentInspection.status,
       to_status: newStatus,
       note: isUnschedule ? 'Status reverted on unschedule' : 'Auto-confirmed on schedule',
     } satisfies StatusHistoryInsert)
@@ -113,7 +118,6 @@ export async function updateSchedule(update: ScheduleUpdate): Promise<ScheduleRe
   revalidatePath('/admin/dispatch')
   revalidatePath('/admin/jobs')
 
-  // 10. Return result
   return {
     success: true,
     jobId: update.jobId,

@@ -16,7 +16,7 @@ export function computeDispatchStatus(fields: {
 export function buildScheduleUpdate(
   current: {
     status: string
-    assigned_to: string | null
+    assigned_inspector_id: string | null
     scheduled_date: string | null
     scheduled_time: string | null
     estimated_duration_minutes: number
@@ -33,7 +33,7 @@ export function buildScheduleUpdate(
   const updateData: Record<string, unknown> = {}
 
   // 1. Build update from explicitly passed fields
-  if ('assignedTo' in update) updateData.assigned_to = update.assignedTo
+  if ('assignedTo' in update) updateData.assigned_inspector_id = update.assignedTo
   if ('scheduledDate' in update) updateData.scheduled_date = update.scheduledDate
   if ('scheduledTime' in update) updateData.scheduled_time = update.scheduledTime
   if ('estimatedDurationMinutes' in update) updateData.estimated_duration_minutes = update.estimatedDurationMinutes
@@ -41,7 +41,7 @@ export function buildScheduleUpdate(
 
   // 2. Compute effective values (merge update over current)
   const effective = {
-    assignedTo: 'assignedTo' in update ? update.assignedTo! : current.assigned_to,
+    assignedTo: 'assignedTo' in update ? update.assignedTo! : current.assigned_inspector_id,
     scheduledDate: 'scheduledDate' in update ? update.scheduledDate! : current.scheduled_date,
     scheduledTime: 'scheduledTime' in update ? update.scheduledTime! : current.scheduled_time,
   }
@@ -50,7 +50,7 @@ export function buildScheduleUpdate(
   updateData.dispatch_status = computeDispatchStatus(effective)
 
   // 4. Track reassignment
-  if ('assignedTo' in update && update.assignedTo !== current.assigned_to) {
+  if ('assignedTo' in update && update.assignedTo !== current.assigned_inspector_id) {
     updateData.last_reassigned_by = userId
     updateData.last_reassigned_at = new Date().toISOString()
   }
@@ -60,7 +60,7 @@ export function buildScheduleUpdate(
   let newStatus: string | undefined
   const effectiveJob = {
     status: current.status,
-    assigned_to: effective.assignedTo,
+    assigned_inspector_id: effective.assignedTo,
     scheduled_date: effective.scheduledDate,
     scheduled_time: effective.scheduledTime,
   }
@@ -82,7 +82,7 @@ export function buildUnscheduleUpdate(
   userId: string
 ): { updateData: Record<string, unknown>; statusChanged: boolean; newStatus?: string } {
   const updateData: Record<string, unknown> = {
-    assigned_to: null,
+    assigned_inspector_id: null,
     scheduled_date: null,
     scheduled_time: null,
     dispatch_status: 'unscheduled',
@@ -94,11 +94,11 @@ export function buildUnscheduleUpdate(
   let statusChanged = false
   let newStatus: string | undefined
 
-  // P1 bug fix: revert confirmed/in_progress to pending on unschedule
+  // Revert confirmed/in_progress to requested on unschedule
   if (current.status === 'confirmed' || current.status === 'in_progress') {
-    updateData.status = 'pending'
+    updateData.status = 'requested'
     statusChanged = true
-    newStatus = 'pending'
+    newStatus = 'requested'
   }
 
   return { updateData, statusChanged, newStatus }
