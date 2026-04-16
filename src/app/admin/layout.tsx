@@ -30,12 +30,8 @@ export default async function AdminLayout({
   const profile = rawProfile as any
   if (!profile?.is_active) redirect('/login?error=access_denied')
 
-  // Get unassigned job count for sidebar badge
-  const { count: unassignedCount } = await supabase
-    .from('jobs')
-    .select('id', { count: 'exact', head: true })
-    .is('assigned_to', null)
-    .in('status', ['pending'])
+  // TODO: Update to match actual database schema
+  const unassignedCount = 0
 
   return (
     <div className="flex min-h-screen bg-[#FFFDF5]">
