@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DisptchMama | Dispatch Board",
+  title: "Seller's Compliance | California Home Sale Compliance Inspections",
   description:
-    "Drag-and-drop dispatch board for field service teams. Schedule jobs, manage team members, and track work in real time.",
+    "Same-day California home compliance inspections in Los Angeles & Orange County. $125 flat fee, state-required safety items handled fast.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "32x32" },

@@ -92,9 +92,9 @@ export function AdminSidebar({ unassignedCount = 0 }: { unassignedCount?: number
           </div>
           <div>
             <p className="text-white text-sm font-semibold leading-tight font-[Syne]">
-              DisptchMama
+              Seller&apos;s Compliance
             </p>
-            <p className="text-[#F9A8D4] text-xs">Dispatch Board</p>
+            <p className="text-[#F9A8D4] text-xs">Admin</p>
           </div>
         </Link>
       </div>
@@ -131,7 +131,7 @@ export function AdminSidebar({ unassignedCount = 0 }: { unassignedCount?: number
       <div className="px-5 py-4 border-t border-slate-800">
         <div className="flex items-center gap-2 text-slate-500 text-xs">
           <Truck className="w-3.5 h-3.5" />
-          <span>DisptchMama &copy; 2026</span>
+          <span>Seller&apos;s Compliance &copy; 2026</span>
         </div>
       </div>
     </aside>

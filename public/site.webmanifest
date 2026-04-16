@@ -1,6 +1,6 @@
 {
-  "name": "DisptchMama",
-  "short_name": "DM",
+  "name": "Seller's Compliance",
+  "short_name": "SC",
   "start_url": "/",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
