@@ -123,6 +123,7 @@ export async function createPaymentLink(
     return { success: true, url: session.url || undefined }
   } catch (err) {
     console.error('Failed to create payment link:', err)
-    return { success: false, error: 'Failed to create Stripe payment link' }
+    const detail = err instanceof Error ? err.message : String(err)
+    return { success: false, error: `Stripe error: ${detail}` }
   }
 }
