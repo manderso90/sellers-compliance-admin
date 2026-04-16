@@ -648,4 +648,53 @@ Execute these tasks in order during implementation.
 
 1. **Register the Stripe webhook** (Step 14) — add an endpoint in the Stripe dashboard at `https://sellerscompliance.com/api/stripe/webhook` for event `checkout.session.completed`. Verify signing secret matches the `STRIPE_WEBHOOK_SECRET` already on Vercel.
 2. **Commit + push** — this run staged the Phase B files but left several unrelated working-tree changes (context docs, settings, other plan files) for the user to review separately.
+
+---
+
+## Smoke Test Postmortem (2026-04-16)
+
+End-to-end smoke test after initial deploy failed three times before working. Each fix is captured below so future-me understands the chain.
+
+### Fix 1 — StripeConnectionError on Vercel Fluid Compute
+
+**Symptom:** First `createPaymentLink` call threw `StripeConnectionError: An error occurred with our connection to Stripe. Request was retried 2 times.`
+
+**Cause:** Default Node `http` agent is unreliable on Vercel Fluid Compute — intermittent connection resets.
+
+**Fix:** Switched the Stripe client to `Stripe.createFetchHttpClient()` plus `maxNetworkRetries: 2`. Committed in `ccbc07a`. After this, checkout session creation worked on the first try. Kept the fix in place (it's also what AI-generated Vercel docs now recommend).
+
+### Fix 2 — Stripe CLI account mismatch with Vercel env
+
+**Symptom:** First successful payment completed on Stripe's side (user saw the `/payment/success` page), but the admin UI still showed "No payments recorded." Stripe CLI (`stripe events list`) showed zero test-mode events.
+
+**Cause:** `STRIPE_SECRET_KEY` on Vercel was for a *different* Stripe account (`sk_test_51THnXBLYEDNBNumS...`) than the CLI was authenticated to (`sk_test_51THnX3LTuTIZa0Zh...`). Test payments went through Vercel's account, which had no webhook registered anywhere. The CLI couldn't see those events because it was looking at a different account's dashboard.
+
+**Fix:** User re-logged the Stripe CLI into the intended account (`acct_1THnX3LTuTIZa0Zh`, "Sellers Compliance"). Rotated all three Vercel production env vars (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) to this account's test-mode keys. Registered a webhook endpoint via CLI. Redeployed. **Lesson:** always cross-check that the CLI account prefix matches the Vercel `STRIPE_SECRET_KEY` prefix before spending time on delivery debugging.
+
+### Fix 3 — 307 redirect eating all webhook POSTs
+
+**Symptom:** Webhook endpoint registered at `https://sellerscompliance.com/api/stripe/webhook`, but `pending_webhooks` stayed at 1 on every retry. Manual `curl -I -X POST` to the endpoint returned `HTTP/2 307` redirect to `www.sellerscompliance.com`.
+
+**Cause:** Vercel domain config had `www` as the primary domain, with apex 307-redirecting to www. **Stripe does not follow redirects on POST** (neither do most webhook senders), so every delivery died at the first hop.
+
+**Fix:** Initially moved the webhook URL to `www.sellerscompliance.com` (worked immediately). User preferred apex as the canonical URL for browser visibility, so we:
+1. Flipped Vercel domain config: apex "Connect to an environment → Production"; `www` "Redirect to Another Domain → sellerscompliance.com" (307).
+2. Moved the Stripe webhook URL back to apex.
+3. Verified: `POST sellerscompliance.com/api/stripe/webhook` returns 400 (signature rejection on unsigned probe = reachable); `POST www.sellerscompliance.com/api/stripe/webhook` returns 307 → apex. Stripe event resend showed `pending_webhooks: 0`.
+
+**Lesson:** Stripe webhook URL must be a *direct* host — never one that redirects. Next time I set up an external webhook for this project, default to `https://sellerscompliance.com/...` (the apex), not `www.`. Saved as feedback memory `feedback_canonical_url.md`.
+
+### Final Verified State
+
+- Payment UI end-to-end: admin clicks **Payment Link** → customer pays test card → payment row appears automatically, `payment_status = 'paid'`, balance recalculated.
+- Stripe account in use: `acct_1THnX3LTuTIZa0Zh` ("Sellers Compliance"), test mode.
+- Webhook endpoint: `we_1TMv45LTuTIZa0Zhobkv4C0R` pointing at `https://sellerscompliance.com/api/stripe/webhook`, event `checkout.session.completed`, enabled.
+- Diagnostic `Stripe error: ${detail}` exposure added during Fix 1 debugging was reverted back to the d0cec1f-original generic `"Failed to create Stripe payment link"` message after the smoke test passed.
+
+### Live-mode readiness (deferred)
+
+When Mo is ready to take real money:
+1. Swap all three Vercel production Stripe env vars to live-mode keys from the same Stripe account.
+2. Register a second webhook endpoint in *live* mode (CLI: drop the `--live=false` flag) pointing to the same apex URL.
+3. Copy its `whsec_` into `STRIPE_WEBHOOK_SECRET` on Vercel and redeploy.
 3. **Smoke test** — after deploy, open `/admin/jobs/<id>`, verify Payments card renders, click **Payment Link**, complete a Stripe test-card payment, confirm webhook flips `payment_status` to `'paid'`.
