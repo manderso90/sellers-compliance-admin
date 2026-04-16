@@ -1,40 +1,80 @@
-# Business Context
+Business Context
 
-> Migrated from `context/business-info.md` — all original content preserved.
+Adapted for Seller’s Compliance — based on GS Retrofit operational foundation.
 
-## Organization Overview
+Organization Overview
 
-DisptchMama is an internal scheduling tool built for GSRetrofit.com, designed to streamline and scale the scheduling of retrofit inspection services.
+Seller’s Compliance is a home compliance inspection service designed to help property owners, real estate agents, and escrow teams meet California point-of-sale safety requirements quickly and efficiently.
 
-It is not a standalone company, but rather a purpose-built operational system created to support high-volume scheduling workflows. DisptchMama is specifically designed for Christian Omari Robbins, whose role involves managing and coordinating incoming inspection requests.
+Built on the operational experience of GS Retrofit, Seller’s Compliance focuses on fast, reliable inspections and optional installation services that ensure properties meet required safety standards before closing.
 
-The mission of DisptchMama is to reduce scheduling friction, eliminate manual inefficiencies, and enable fast, accurate dispatching at scale. It transforms what is traditionally a time-intensive coordination process into a streamlined, system-driven workflow.
+The company operates as both a field service business and a system-driven workflow, combining streamlined scheduling, rapid inspections, and clear reporting to support high-volume real estate transactions.
 
-The platform emphasizes:
-- Speed
-- Simplicity
-- Clarity
-- Operational efficiency
+The mission of Seller’s Compliance is to eliminate friction in the compliance process by delivering:
 
-## Products / Services / Focus Areas
+Fast turnaround times (same-day or next-day service)
+Clear, actionable inspection results
+Seamless coordination with agents and escrow
+Optional installation services to resolve issues immediately
 
-### Inspection Scheduling Engine
-Centralized system for receiving, organizing, and assigning retrofit inspection requests.
+Seller’s Compliance transforms compliance from a fragmented, confusing process into a predictable and efficient experience.
 
-### Dispatch Management System
-Tools for assigning inspectors, managing time slots, and adjusting schedules dynamically throughout the day.
+Products / Services / Focus Areas
+Compliance Inspection Service
 
-### Workflow Automation
-Reduces manual input by automating repetitive scheduling decisions and standardizing processes.
+Visual inspections (typically 10–15 minutes) to verify California safety requirements, including:
 
-### Operational Visibility
-Provides a clear view of daily workload, inspector availability, and upcoming jobs.
+Smoke detectors (bedrooms and hallways)
+Carbon monoxide detectors (each level)
+Water heater strapping and overflow pipe
+Low-flow plumbing fixtures
+Work Completion / Installation Services
 
-## Key Context
+Optional services to correct failed items, including:
 
-- DisptchMama is in early development (internal tool phase) and is being built alongside active GS Retrofit operations.
-- The system must support real-world scheduling volatility, including frequent rescheduling, reassignment, and same-day changes.
-- The primary user (Christian) handles high daily call and request volume, making efficiency critical.
-- The tool is being developed using Claude Code and VS Code, with a strong emphasis on rapid iteration and practical usability.
-- The long-term goal is to significantly reduce the number of hours required to perform scheduling duties, while increasing accuracy and scalability.
-- Naming note: "DisptchMama" intentionally omits the letter "a" in "dispatch" and matches the registered domain.
+Smoke and CO detector installation
+Water heater strapping
+Overflow pipe installation
+Toilet replacement
+Seismic gas shutoff valve installation (where applicable or requested)
+Scheduling & Dispatch System
+
+Internal system designed to:
+
+Assign inspectors efficiently
+Handle real-time schedule changes
+Support high-volume daily operations
+Enable drag-and-drop rescheduling and reassignment
+Operational Command Center
+
+Centralized visibility into:
+
+Daily and weekly workload
+Inspector assignments and availability
+Job status (scheduled, completed, needs work)
+Revenue tracking tied to inspections and installations
+Workflow Automation
+
+System-driven processes that:
+
+Reduce manual scheduling effort
+Standardize inspection and reporting workflows
+Enable fast invoice generation and job tracking
+Key Context
+Seller’s Compliance operates in Los Angeles and Orange Counties.
+Standard inspection pricing is $125, with additional services priced per scope.
+Inspections are designed to be fast and minimally disruptive, often completed in 10–15 minutes.
+The system must handle real-world scheduling volatility, including:
+Frequent rescheduling
+Same-day requests
+Inspector reassignment
+Inspectors may complete work on-site immediately when authorized, requiring tight integration between inspection and installation workflows.
+The platform is being actively developed using Claude Code and modern tooling, with a strong emphasis on:
+Speed of iteration
+Real-world usability
+Operational scalability
+The long-term goal is to create a system that:
+Reduces administrative workload
+Increases scheduling accuracy
+Maximizes daily job throughput
+Provides full operational visibility across the business
