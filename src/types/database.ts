@@ -298,6 +298,82 @@ export type Database = {
         Update: never
         Relationships: []
       }
+      payments: {
+        Row: {
+          id: string
+          inspection_id: string
+          amount: number
+          paid_at: string
+          method: string
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          inspection_id: string
+          amount: number
+          paid_at?: string
+          method?: string
+          note?: string | null
+        }
+        Update: {
+          amount?: number
+          paid_at?: string
+          method?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'payments_inspection_id_fkey'
+            columns: ['inspection_id']
+            referencedRelation: 'inspections'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      install_line_items: {
+        Row: {
+          id: string
+          inspection_id: string
+          product_id: string | null
+          item_name: string | null
+          quantity: number
+          unit_price: number
+          unit_part_cost: number
+          unit_labor_cost: number
+          completed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          inspection_id: string
+          product_id?: string | null
+          item_name?: string | null
+          quantity?: number
+          unit_price: number
+          unit_part_cost?: number
+          unit_labor_cost?: number
+          completed_at?: string | null
+        }
+        Update: {
+          product_id?: string | null
+          item_name?: string | null
+          quantity?: number
+          unit_price?: number
+          unit_part_cost?: number
+          unit_labor_cost?: number
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'install_line_items_inspection_id_fkey'
+            columns: ['inspection_id']
+            referencedRelation: 'inspections'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -312,6 +388,8 @@ export type Inspection = Database['public']['Tables']['inspections']['Row']
 export type Property = Database['public']['Tables']['properties']['Row']
 export type Customer = Database['public']['Tables']['customers']['Row']
 export type InspectionStatusHistory = Database['public']['Tables']['inspection_status_history']['Row']
+export type Payment = Database['public']['Tables']['payments']['Row']
+export type InstallLineItem = Database['public']['Tables']['install_line_items']['Row']
 
 // Backward-compatible aliases used by components
 // "Inspector" is a profile with the inspector role
