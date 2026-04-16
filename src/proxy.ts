@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function proxy(request: NextRequest) {
@@ -40,7 +41,11 @@ export async function proxy(request: NextRequest) {
     }
 
     // Verify the user has an active team member profile
-    const { data: rawProfile } = await supabase
+    const adminClient = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: rawProfile } = await adminClient
       .from('team_members')
       .select('is_active')
       .eq('id', user.id)
@@ -58,7 +63,11 @@ export async function proxy(request: NextRequest) {
 
   // Redirect authenticated active users away from login page
   if (request.nextUrl.pathname === '/login' && user) {
-    const { data: rawProfile } = await supabase
+    const adminClient = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: rawProfile } = await adminClient
       .from('team_members')
       .select('is_active')
       .eq('id', user.id)

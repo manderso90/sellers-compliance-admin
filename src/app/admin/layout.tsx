@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { AdminSidebar } from '@/components/admin/layout/AdminSidebar'
 import { AdminHeader } from '@/components/admin/layout/AdminHeader'
@@ -15,7 +16,11 @@ export default async function AdminLayout({
 
   if (!user) redirect('/login')
 
-  const { data: rawProfile } = await supabase
+  const adminClient = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  const { data: rawProfile } = await adminClient
     .from('team_members')
     .select('*')
     .eq('id', user.id)
