@@ -1,0 +1,73 @@
+/* ============================================
+   SC Bold — Design Tokens
+   Scoped to .sc-bold wrapper (admin portal)
+   Neo-brutalist design system
+   ============================================ */
+
+.sc-bold {
+  /* Brand Primary */
+  --sc-red: #C8102E;
+  --sc-red-light: #E8354F;
+  --sc-red-dark: #9E0C24;
+  --sc-red-bg: rgba(200, 16, 46, 0.05);
+
+  /* Brand Secondary */
+  --sc-gold: #D4AF37;
+  --sc-gold-light: #E8C95A;
+  --sc-gold-bg: #FFF8E1;
+  --sc-gold-text: #92700C;
+
+  /* Neutrals */
+  --sc-bg: #FFFDF5;
+  --sc-card: #FFFFFF;
+  --sc-card-hover: #FFFDF5;
+  --sc-ink: #2B2B2B;
+  --sc-ink-secondary: #71717A;
+  --sc-ink-muted: #A1A1AA;
+  --sc-border: #2B2B2B;
+  --sc-border-light: rgba(43, 43, 43, 0.1);
+  --sc-border-subtle: rgba(43, 43, 43, 0.05);
+  --sc-border-input: #2B2B2B;
+
+  /* Sidebar */
+  --sc-sidebar: #4A4543;
+  --sc-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sc-sidebar-active: #C8102E;
+  --sc-sidebar-text: rgba(255, 255, 255, 0.5);
+  --sc-sidebar-text-hover: rgba(255, 255, 255, 0.8);
+  --sc-sidebar-text-active: #FFFFFF;
+  --sc-sidebar-label: rgba(255, 255, 255, 0.3);
+  --sc-sidebar-border: rgba(255, 255, 255, 0.1);
+
+  /* Status */
+  --sc-green: #16a34a;
+  --sc-green-bg: #F0FDF4;
+  --sc-blue: #3b82f6;
+  --sc-blue-bg: #EFF6FF;
+  --sc-purple: #8b5cf6;
+  --sc-purple-bg: #F5F3FF;
+  --sc-cyan: #06b6d4;
+  --sc-orange: #f97316;
+
+  /* Radii */
+  --sc-radius-sm: 8px;
+  --sc-radius-md: 12px;
+  --sc-radius-lg: 12px;
+  --sc-radius-xl: 16px;
+  --sc-radius-full: 999px;
+
+  /* Neo-Brutalist Shadows */
+  --sc-shadow-sm: 3px 3px 0px 0px #2B2B2B;
+  --sc-shadow: 6px 6px 0px 0px #2B2B2B;
+  --sc-shadow-red: 6px 6px 0px 0px #C8102E;
+  --sc-shadow-gold: 6px 6px 0px 0px #D4AF37;
+  --sc-shadow-hover: 8px 8px 0px 0px #2B2B2B;
+
+  /* Typography */
+  --sc-font-display: var(--font-syne, 'Syne', sans-serif);
+  --sc-font-body: var(--font-space-grotesk, 'Space Grotesk', sans-serif);
+
+  /* Transitions */
+  --sc-ease: 0.2s ease;
+  --sc-ease-fast: 0.15s ease;
+}

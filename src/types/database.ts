@@ -331,6 +331,43 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          id: string
+          product_name: string
+          price: number
+          part_cost: number
+          labor_cost: number
+          is_active: boolean
+          sort_order: number
+          category: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_name: string
+          price?: number
+          part_cost?: number
+          labor_cost?: number
+          is_active?: boolean
+          sort_order?: number
+          category?: string | null
+          notes?: string | null
+        }
+        Update: {
+          product_name?: string
+          price?: number
+          part_cost?: number
+          labor_cost?: number
+          is_active?: boolean
+          sort_order?: number
+          category?: string | null
+          notes?: string | null
+        }
+        Relationships: []
+      }
       install_line_items: {
         Row: {
           id: string
@@ -390,6 +427,7 @@ export type Customer = Database['public']['Tables']['customers']['Row']
 export type InspectionStatusHistory = Database['public']['Tables']['inspection_status_history']['Row']
 export type Payment = Database['public']['Tables']['payments']['Row']
 export type InstallLineItem = Database['public']['Tables']['install_line_items']['Row']
+export type Product = Database['public']['Tables']['products']['Row']
 
 // Backward-compatible aliases used by components
 // "Inspector" is a profile with the inspector role

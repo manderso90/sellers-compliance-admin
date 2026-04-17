@@ -1,0 +1,497 @@
+/* ============================================
+   SC Bold — Component Classes
+   Scoped to .sc-bold wrapper (admin portal)
+   Neo-brutalist design system
+   Requires: sc-bold-tokens.css loaded first
+   ============================================ */
+
+/* -- Neo-Brutalist Shadows -- */
+.sc-bold .neo-shadow { box-shadow: var(--sc-shadow); }
+.sc-bold .neo-shadow-sm { box-shadow: var(--sc-shadow-sm); }
+.sc-bold .neo-shadow-red { box-shadow: var(--sc-shadow-red); }
+.sc-bold .neo-shadow-gold { box-shadow: var(--sc-shadow-gold); }
+
+.sc-bold .neo-shadow-hover {
+  transition: transform var(--sc-ease-fast), box-shadow var(--sc-ease-fast);
+}
+.sc-bold .neo-shadow-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sc-shadow-hover);
+}
+
+.sc-bold .btn-press {
+  transition: all var(--sc-ease-fast);
+}
+.sc-bold .btn-press:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* -- Display Font -- */
+.sc-bold .display-font {
+  font-family: var(--sc-font-display);
+}
+
+/* -- Card -- */
+.sc-bold .sc-card {
+  background: var(--sc-card);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-sm);
+  transition: transform var(--sc-ease-fast), box-shadow var(--sc-ease-fast);
+}
+
+.sc-bold .sc-card-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sc-shadow-hover);
+}
+
+.sc-bold .sc-card-header {
+  background: var(--sc-bg);
+  border-bottom: 2px solid var(--sc-border);
+  padding: 16px 20px;
+  font-family: var(--sc-font-display);
+  font-weight: 700;
+}
+
+.sc-bold .sc-card-body {
+  padding: 20px;
+}
+
+/* -- Metric Card -- */
+.sc-bold .sc-metric-card {
+  background: var(--sc-card);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-lg);
+  box-shadow: var(--sc-shadow-sm);
+  padding: 20px;
+  transition: transform var(--sc-ease-fast), box-shadow var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-metric-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sc-shadow-hover);
+}
+
+.sc-bold .sc-metric-card-warning {
+  border-color: var(--sc-gold);
+  background: var(--sc-gold-bg);
+  box-shadow: var(--sc-shadow-gold);
+}
+
+.sc-bold .sc-metric-card-danger {
+  border-color: var(--sc-red);
+  background: var(--sc-red-bg);
+  box-shadow: var(--sc-shadow-red);
+}
+
+/* -- Metric Label / Value -- */
+.sc-bold .sc-metric-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sc-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sc-bold .sc-metric-value {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--sc-ink);
+  font-family: var(--sc-font-display);
+}
+
+/* -- Stat Tile -- */
+.sc-bold .sc-stat-tile {
+  background: var(--sc-bg);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-md);
+  padding: 12px;
+  text-align: center;
+  box-shadow: var(--sc-shadow-sm);
+}
+
+/* -- Alert Gold Banner -- */
+.sc-bold .sc-alert-gold {
+  background: var(--sc-gold-bg);
+  border: 2px solid var(--sc-gold);
+  border-radius: var(--sc-radius-lg);
+  padding: 16px 20px;
+  box-shadow: var(--sc-shadow-gold);
+}
+
+/* -- Revenue Highlight Card -- */
+.sc-bold .sc-revenue-card {
+  background: linear-gradient(135deg, var(--sc-red) 0%, var(--sc-red-dark) 100%);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-lg);
+  padding: 20px;
+  color: white;
+  box-shadow: var(--sc-shadow-sm);
+}
+
+/* -- Pill Tabs / Filter Chips -- */
+.sc-bold .sc-pill-active {
+  background: var(--sc-ink);
+  color: white;
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-full);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sc-bold .sc-pill-inactive {
+  background: var(--sc-card);
+  color: var(--sc-ink-secondary);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-full);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--sc-shadow-sm);
+  transition: all var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-pill-inactive:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* -- Buttons -- */
+.sc-bold .sc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--sc-red);
+  color: white;
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--sc-shadow-sm);
+  transition: all var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-btn-primary:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.sc-bold .sc-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--sc-card);
+  color: var(--sc-ink-secondary);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--sc-shadow-sm);
+  transition: all var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-btn-secondary:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.sc-bold .sc-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--sc-gold);
+  color: var(--sc-ink);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--sc-shadow-sm);
+  transition: all var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-btn-gold:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.sc-bold .sc-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--sc-card);
+  color: var(--sc-red);
+  border: 2px solid var(--sc-red);
+  border-radius: var(--sc-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--sc-shadow-sm);
+  transition: all var(--sc-ease-fast);
+  cursor: pointer;
+}
+.sc-bold .sc-btn-danger:hover {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* -- Badge / Status Pill -- */
+.sc-bold .sc-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--sc-radius-full);
+  border: 2px solid var(--sc-border);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sc-bold .sc-badge-green {
+  background: #dcfce7;
+  color: #166534;
+  border-color: var(--sc-border);
+}
+.sc-bold .sc-badge-gold {
+  background: var(--sc-gold-bg);
+  color: var(--sc-gold);
+  border-color: var(--sc-gold);
+}
+.sc-bold .sc-badge-red {
+  background: var(--sc-red-bg);
+  color: var(--sc-red);
+  border-color: var(--sc-red);
+}
+.sc-bold .sc-badge-blue {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: var(--sc-border);
+}
+.sc-bold .sc-badge-purple {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: var(--sc-border);
+}
+.sc-bold .sc-badge-slate {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: var(--sc-border);
+}
+
+/* -- Input -- */
+.sc-bold .sc-input {
+  border: 2px solid var(--sc-border);
+  background: var(--sc-bg);
+  border-radius: var(--sc-radius-sm);
+  padding: 10px 16px;
+  font-size: 14px;
+  transition: border-color var(--sc-ease-fast), box-shadow var(--sc-ease-fast);
+  outline: none;
+  width: 100%;
+}
+.sc-bold .sc-input:focus {
+  border-color: var(--sc-red);
+  box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.15);
+}
+.sc-bold .sc-input::placeholder {
+  color: var(--sc-ink-muted);
+}
+
+/* -- Search Input -- */
+.sc-bold .sc-search-input {
+  background: var(--sc-bg);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.sc-bold .sc-search-input:focus {
+  border-color: var(--sc-red);
+  box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.15);
+  outline: none;
+}
+
+/* -- Table -- */
+.sc-bold .sc-table-header {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sc-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--sc-bg);
+}
+
+.sc-bold .sc-table-row {
+  transition: background var(--sc-ease-fast);
+}
+.sc-bold .sc-table-row:hover {
+  background: var(--sc-bg);
+}
+
+/* -- Section Label -- */
+.sc-bold .sc-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sc-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* -- Progress Bar -- */
+.sc-bold .sc-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border-light);
+  border-radius: var(--sc-radius-full);
+  overflow: hidden;
+}
+.sc-bold .sc-progress-fill {
+  height: 100%;
+  border-radius: var(--sc-radius-full);
+  transition: width 0.8s ease;
+}
+
+/* -- Nav Item -- */
+.sc-bold .sc-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--sc-radius-sm);
+  font-size: 14px;
+  transition: all var(--sc-ease-fast);
+}
+
+/* -- Form Label -- */
+.sc-bold .sc-form-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sc-ink-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* -- Toggle Switch -- */
+.sc-bold .sc-toggle-track {
+  width: 44px;
+  height: 24px;
+  background: #e2e8f0;
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-full);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--sc-ease-fast);
+}
+.sc-bold .sc-toggle-track.active {
+  background: var(--sc-red);
+}
+.sc-bold .sc-toggle-thumb {
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius-full);
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  transition: transform var(--sc-ease-fast);
+}
+.sc-bold .sc-toggle-track.active .sc-toggle-thumb {
+  transform: translateX(20px);
+}
+
+/* -- Radio Pill -- */
+.sc-bold .sc-radio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--sc-card);
+  color: var(--sc-ink-secondary);
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--sc-ease-fast);
+}
+.sc-bold .sc-radio-pill.selected {
+  background: var(--sc-ink);
+  color: white;
+  border-color: var(--sc-ink);
+}
+
+/* -- Background Blobs -- */
+@keyframes move-blob {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+.sc-bold .animate-blob { animation: move-blob 10s infinite; }
+.sc-bold .blob-delay-2 { animation-delay: 2s; }
+.sc-bold .blob-delay-4 { animation-delay: 4s; }
+
+/* -- Custom Scrollbar -- */
+.sc-bold ::-webkit-scrollbar { width: 6px; }
+.sc-bold ::-webkit-scrollbar-track { background: transparent; }
+.sc-bold ::-webkit-scrollbar-thumb {
+  background: var(--sc-gold);
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+}
+
+/* -- Selection -- */
+.sc-bold ::selection {
+  background: var(--sc-red);
+  color: white;
+}
+
+/* ============================================
+   shadcn/ui Scoped Overrides
+   These override shadcn defaults inside .sc-bold
+   ============================================ */
+
+/* Dialog/Modal */
+.sc-bold [data-radix-popper-content-wrapper],
+.sc-bold [role="dialog"] {
+  font-family: var(--sc-font-body);
+}
+
+.sc-bold [role="dialog"] > div {
+  border: 2px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius-lg) !important;
+  box-shadow: var(--sc-shadow) !important;
+}
+
+/* Dropdown Menu */
+.sc-bold [role="menu"] {
+  border: 2px solid var(--sc-border) !important;
+  border-radius: var(--sc-radius-sm) !important;
+  box-shadow: var(--sc-shadow-sm) !important;
+  background: var(--sc-card) !important;
+}
+
+/* Select dropdown */
+.sc-bold [data-radix-select-viewport] {
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-sm);
+  box-shadow: var(--sc-shadow-sm);
+}
+
+/* Popover */
+.sc-bold [data-radix-popper-content-wrapper] [data-side] {
+  border: 2px solid var(--sc-border);
+  border-radius: var(--sc-radius-sm);
+  box-shadow: var(--sc-shadow-sm);
+}

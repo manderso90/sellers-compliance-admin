@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/sc-bold-tokens.css";
+@import "../styles/sc-bold-components.css";
 
 @source not "../../.claude";
 @source not "../../aios";
