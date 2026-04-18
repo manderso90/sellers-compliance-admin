@@ -16,7 +16,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div>
-        <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight display-font">Settings</h1>
+        <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">Settings</h1>
         <p className="text-[13px] text-[#71717A] mt-0.5">Manage your team and account settings.</p>
       </div>
 

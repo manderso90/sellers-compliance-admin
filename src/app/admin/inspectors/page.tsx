@@ -9,7 +9,7 @@ export default async function InspectorsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 font-[Syne]">
+          <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">
             Inspectors
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">

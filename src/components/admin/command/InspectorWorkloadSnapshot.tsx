@@ -14,7 +14,7 @@ export function InspectorWorkloadSnapshot({ workloads }: { workloads: InspectorW
   if (workloads.length === 0) {
     return (
       <div className="bg-white border-2 border-[#2B2B2B] rounded-xl neo-shadow-sm p-6">
-        <h3 className="display-font text-lg font-bold text-[#2B2B2B] tracking-tight mb-3">Inspector Workload</h3>
+        <h3 className="text-lg font-bold text-[#2B2B2B] tracking-tight mb-3">Inspector Workload</h3>
         <p className="text-sm text-[#A1A1AA] text-center py-4">No active inspectors</p>
       </div>
     )
@@ -23,7 +23,7 @@ export function InspectorWorkloadSnapshot({ workloads }: { workloads: InspectorW
   return (
     <div className="bg-white border-2 border-[#2B2B2B] rounded-xl neo-shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b-2 border-[#2B2B2B]">
-        <h3 className="display-font text-lg font-bold text-[#2B2B2B] tracking-tight">Inspector Workload</h3>
+        <h3 className="text-lg font-bold text-[#2B2B2B] tracking-tight">Inspector Workload</h3>
         <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">Today&apos;s assignments</p>
       </div>
 

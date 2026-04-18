@@ -34,7 +34,7 @@ export default async function AdminLayout({
   const unassignedCount = 0
 
   return (
-    <div className="flex min-h-screen bg-[#FFFDF5]">
+    <div className="flex min-h-screen bg-[#FFFDF5]" style={{ fontFamily: 'var(--font-inter), Inter, sans-serif' }}>
       <AdminSidebar unassignedCount={unassignedCount ?? 0} />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader profile={profile} />

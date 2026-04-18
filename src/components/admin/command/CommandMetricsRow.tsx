@@ -44,7 +44,7 @@ function BoldMetricCard({
           </p>
           <p
             className={cn(
-              'display-font text-4xl font-bold tracking-tight mt-1',
+              'text-4xl font-bold tracking-tight mt-1',
               variant === 'danger' ? 'text-[#C8102E]' : 'text-[#2B2B2B]'
             )}
           >

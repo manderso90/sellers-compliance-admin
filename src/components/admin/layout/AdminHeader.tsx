@@ -17,7 +17,8 @@ import { LogOut, User } from 'lucide-react'
 import type { Profile } from '@/types/database'
 
 const roleLabel: Record<string, string> = {
-  admin: 'Admin',
+  super_admin: 'Administrator',
+  admin: 'Administrator',
   dispatcher: 'Dispatcher',
   inspector: 'Inspector',
   field_tech: 'Field Tech',
@@ -60,6 +61,25 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
     : profile.email[0].toUpperCase()
 
   const roleKey = primaryRole(profile.roles ?? [])
+  const roleText = (roleLabel[roleKey] || roleKey).toUpperCase()
+
+  const userPill = (
+    <div className="flex items-center gap-2.5 bg-white border border-[#D4D4D4] hover:border-black rounded-full pl-1 pr-3.5 py-1 transition-colors cursor-pointer">
+      <Avatar className="w-[34px] h-[34px]">
+        <AvatarFallback className="bg-black text-[#EFB948] text-xs font-bold">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+      <div className="text-left hidden sm:block">
+        <p className="text-[13px] font-semibold text-[#2B2B2B] leading-tight">
+          {profile.full_name || 'Team Member'}
+        </p>
+        <p className="text-[9px] text-[#A1A1AA] leading-tight uppercase" style={{ letterSpacing: '0.2em' }}>
+          {roleText}
+        </p>
+      </div>
+    </div>
+  )
 
   return (
     <header className="h-14 bg-[#FFFDF5] border-b-2 border-black px-6 flex items-center justify-between shrink-0">
@@ -68,19 +88,7 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
       {mounted ? (
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
-            <div className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-[#F9A8D4] text-black text-xs font-bold">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-medium text-slate-800 leading-tight">
-                  {profile.full_name || 'Team Member'}
-                </p>
-                <p className="text-xs text-slate-500 leading-tight">{roleLabel[roleKey] || roleKey}</p>
-              </div>
-            </div>
+            {userPill}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <DropdownMenuGroup>
@@ -111,19 +119,7 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <div className="flex items-center gap-2.5">
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-[#F9A8D4] text-black text-xs font-bold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-left hidden sm:block">
-            <p className="text-sm font-medium text-slate-800 leading-tight">
-              {profile.full_name || 'Team Member'}
-            </p>
-            <p className="text-xs text-slate-500 leading-tight">{roleLabel[roleKey] || roleKey}</p>
-          </div>
-        </div>
+        userPill
       )}
     </header>
   )

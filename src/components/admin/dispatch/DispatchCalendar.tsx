@@ -44,7 +44,7 @@ export function DispatchCalendar({ currentDate, onSelectDate }: DispatchCalendar
         >
           <ChevronLeft className="w-3.5 h-3.5" />
         </button>
-        <span className="text-xs font-semibold text-slate-700 font-[Syne]">
+        <span className="text-xs font-semibold text-slate-700">
           {format(viewMonth, 'MMMM yyyy')}
         </span>
         <button

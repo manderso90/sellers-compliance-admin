@@ -136,7 +136,7 @@ export function TimelineGrid({
         {/* Time axis header — sticky at top */}
         <div className="flex border-b-2 border-black bg-[#FFFDF5] sticky top-0 z-20">
           <div className="w-40 shrink-0 px-3 py-2 border-r-2 border-black sticky left-0 z-30 bg-[#FFFDF5]">
-            <span className="text-xs font-medium text-slate-500 font-[Syne]">Inspector</span>
+            <span className="text-xs font-medium text-slate-500">Inspector</span>
           </div>
           <div className="flex-1 relative" style={{ minWidth: HOURS.length * HOUR_WIDTH_PX }}>
             {HOURS.map((hour) => (

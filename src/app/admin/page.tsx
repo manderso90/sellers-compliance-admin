@@ -37,7 +37,7 @@ export default async function AdminPage() {
         <ScheduleSyncClient />
         {/* Page header */}
         <div>
-          <h1 className="text-3xl display-font font-bold text-[#2B2B2B] tracking-tight">Command Center</h1>
+          <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">Command Center</h1>
           <p className="text-sm text-slate-500 mt-1">
             Operations &amp; revenue intelligence
           </p>

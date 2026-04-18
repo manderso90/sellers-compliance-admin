@@ -9,7 +9,7 @@ export default async function JobsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 font-[Syne]">Jobs</h1>
+          <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">Jobs</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             All jobs in the system. Create new jobs to populate the dispatch board.
           </p>

@@ -42,7 +42,7 @@ export function DispatchHeader({ currentDate, isToday }: { currentDate: string; 
           <CalendarDays className="w-4 h-4" />
         </button>
 
-        <h2 className="text-sm font-semibold text-slate-800 min-w-[240px] text-center font-[Syne]">
+        <h2 className="text-sm font-semibold text-slate-800 min-w-[240px] text-center">
           {displayDate}
         </h2>
 

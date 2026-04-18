@@ -101,7 +101,7 @@ export function ProductPricingCard({ products }: { products: Product[] }) {
     <div className="bg-white border-2 border-[#2B2B2B] rounded-xl neo-shadow-sm overflow-hidden">
       <div className="px-5 py-4 border-b-2 border-[#2B2B2B] flex items-center justify-between">
         <div>
-          <h3 className="display-font text-lg font-bold text-[#2B2B2B] tracking-tight">Product Pricing</h3>
+          <h3 className="text-lg font-bold text-[#2B2B2B] tracking-tight">Product Pricing</h3>
           <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">Install product catalog</p>
         </div>
         {!addingNew && (

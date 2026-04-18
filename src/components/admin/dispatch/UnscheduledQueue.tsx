@@ -31,7 +31,7 @@ export function UnscheduledQueue({ jobs }: { jobs: UnscheduledJob[] }) {
         className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-semibold text-slate-800 font-[Syne]">Unscheduled Jobs</h3>
+          <h3 className="text-sm font-semibold text-slate-800">Unscheduled Jobs</h3>
           {jobs.length > 0 && (
             <span className="bg-[#FDE047] text-black border border-black text-xs font-bold rounded-full px-2 py-0.5">
               {jobs.length}

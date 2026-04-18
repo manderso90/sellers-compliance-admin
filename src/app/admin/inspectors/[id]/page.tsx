@@ -34,7 +34,7 @@ export default async function InspectorDetailPage({
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Inspectors
           </Link>
-          <h1 className="text-xl font-semibold text-slate-900 font-[Syne]">
+          <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">
             {inspector.full_name ?? 'Unnamed'}
           </h1>
           <div className="flex items-center gap-4 text-xs text-slate-500">

@@ -64,8 +64,8 @@
   --sc-shadow-hover: 8px 8px 0px 0px #2B2B2B;
 
   /* Typography */
-  --sc-font-display: var(--font-syne, 'Syne', sans-serif);
-  --sc-font-body: var(--font-space-grotesk, 'Space Grotesk', sans-serif);
+  --sc-font-display: var(--font-inter, 'Inter', sans-serif);
+  --sc-font-body: var(--font-inter, 'Inter', sans-serif);
 
   /* Transitions */
   --sc-ease: 0.2s ease;

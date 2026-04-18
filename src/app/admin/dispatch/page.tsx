@@ -23,7 +23,7 @@ export default async function DispatchPage({
     <div className="space-y-4">
       {/* Page header */}
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Dispatch Timeline</h1>
+        <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">Dispatch Timeline</h1>
         <p className="text-sm text-slate-500 mt-0.5">
           Drag unscheduled jobs onto inspector rows to assign and schedule.
         </p>
