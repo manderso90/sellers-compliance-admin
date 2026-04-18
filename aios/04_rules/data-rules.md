@@ -1,6 +1,6 @@
 # Data Rules
 
-Standards for how data flows through DisptchMama — from Supabase to the UI and back.
+Standards for how data flows through Seller's Compliance — from Supabase to the UI and back.
 
 ## Supabase Client Selection
 

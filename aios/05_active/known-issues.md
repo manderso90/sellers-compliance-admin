@@ -1,6 +1,6 @@
 # Known Issues
 
-Bugs, tech debt, and structural problems identified in the DisptchMama codebase.
+Bugs, tech debt, and structural problems identified in the Seller's Compliance codebase.
 
 ## Structural Issues
 
@@ -46,7 +46,7 @@ Bugs, tech debt, and structural problems identified in the DisptchMama codebase.
 ### F2: Inconsistent status after unschedule
 **Severity**: Medium
 **Problem**: Dragging a confirmed job back to the unscheduled queue clears `assigned_to` and `dispatch_status`, but leaves `status` as `confirmed`. Logically inconsistent.
-**Fix**: Revert status to `pending` when unscheduling, or prevent unscheduling of non-pending jobs.
+**Fix**: Revert status to `requested` when unscheduling, or prevent unscheduling of non-requested jobs.
 
 ### F3: No stale-data recovery for realtime
 **Severity**: Medium

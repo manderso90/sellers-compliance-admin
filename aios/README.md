@@ -1,11 +1,11 @@
-# AIOS v2 — DisptchMama Project Intelligence
+# AIOS v2 — Seller's Compliance Project Intelligence
 
 > **Non-runtime. Non-production. Never imported by application code.**
-> This directory exists solely to give Claude structured context about the DisptchMama project.
+> This directory exists solely to give Claude structured context about the Seller's Compliance project.
 
 ## Quick Orientation
 
-DisptchMama is an internal scheduling and dispatch tool for **GSRetrofit.com**. It replaces manual phone-and-text coordination with a drag-and-drop dispatch timeline. Built with Next.js 16, React 19, Supabase, and @dnd-kit. Neo-brutalist design. Single primary user: Christian (scheduler). System owner: Mo.
+Seller's Compliance is the operational platform for **GSRetrofit.com** — a compliance inspection and field services business. It provides scheduling, dispatch, command center, customer ordering, and payment processing. Built with Next.js 16, React 19, Supabase, Stripe, and @dnd-kit. SC Bold design system. System owner: Mo (Morris Anderson).
 
 ---
 
@@ -89,13 +89,13 @@ aios/
 ├── README.md                              ← You are here
 │
 ├── 00_overview/                           PRODUCT & STRATEGY
-│   ├── product.md                         What DisptchMama is, features, design language
+│   ├── product.md                         What Seller's Compliance is, features, design language
 │   └── vision.md                          Q2 2026 priorities, success criteria, open questions
 │
 ├── 01_context/                            BUSINESS & DOMAIN
-│   ├── business.md                        GS Retrofit org overview, focus areas
-│   ├── users.md                           Christian (scheduler), Mo (developer)
-│   └── terminology.md                     Glossary: jobs, regions, statuses, DnD, lockbox, etc.
+│   ├── business.md                        Seller's Compliance org overview, services, integrations
+│   ├── users.md                           Roles: coordinator, inspector, admin, customer, system owner
+│   └── terminology.md                     Glossary: jobs, statuses, products, payments, DnD, lockbox, etc.
 │
 ├── 02_architecture/                       TECHNICAL DESIGN
 │   ├── system-design.md                   Tech stack, 4-layer architecture, auth, realtime
@@ -109,7 +109,7 @@ aios/
 │
 ├── 04_rules/                              DEVELOPMENT STANDARDS
 │   ├── coding-rules.md                    TypeScript, naming, layers, imports, git
-│   ├── ui-ux-rules.md                     Neo-brutalist design system, interaction patterns
+│   ├── ui-ux-rules.md                     SC Bold design system, interaction patterns
 │   └── data-rules.md                      Supabase clients, auth guards, query patterns
 │
 ├── 05_active/                             CURRENT STATE

@@ -14,7 +14,7 @@ This role operates at the center of the business, ensuring that jobs are schedul
 
 * Customer preferences
 * Inspector availability
-* Geographic routing
+* Workload balancing
 * Real-time operational changes
 
 The coordinator acts as the primary decision-maker for:
@@ -36,8 +36,8 @@ This role exists in a **high-volume, real-time environment** where speed, accura
 * **Manage Schedule Changes**
   Handle reschedules, cancellations, and same-day adjustments in real time.
 
-* **Optimize Routes & Workload**
-  Ensure inspectors are efficiently scheduled with minimal downtime and logical routing.
+* **Optimize Workload**
+  Ensure inspectors are efficiently scheduled with minimal downtime.
 
 * **Coordinate Communication**
   Act as the central point of contact for scheduling updates between customers, inspectors, and internal operations.
@@ -62,6 +62,24 @@ They operate on mobile devices and rely on the system for daily assignments and 
 * Upload notes, photos, and results
 * Update job status in real time
 * Communicate field conditions back to dispatch when needed
+
+---
+
+## Public Users
+
+### Customer
+
+**Role**: Property Owner, Real Estate Agent, or Escrow Officer
+
+Customers are the people who request and pay for compliance inspections. They may be property owners selling a home, real estate agents coordinating on behalf of a seller, or escrow officers ensuring compliance requirements are met before closing.
+
+### Key Interactions
+
+* Place inspection orders via the public `/order` page (self-service)
+* Be created by a coordinator when orders come in via phone/email
+* Receive order confirmation at `/order/confirmation`
+* Make payments via Stripe checkout
+* Receive inspection results and reports
 
 ---
 
@@ -106,10 +124,10 @@ Seller’s Compliance, combined with Claude Code and AI-assisted workflows, func
 ### For Inspectors
 
 * **Clear Daily View**
-  Provide a simple, mobile-friendly list of assigned jobs.
+  *Planned*: Mobile-friendly inspector view for assigned jobs (not yet built).
 
 * **Fast Data Entry**
-  Enable quick input of inspection results, notes, and photos.
+  *Planned*: Quick input of inspection results, notes, and photos from the field.
 
 * **On-Site Flexibility**
   Allow immediate transition from inspection to work completion.
@@ -137,7 +155,7 @@ Seller’s Compliance, combined with Claude Code and AI-assisted workflows, func
 
 Morris is responsible for designing, building, and evolving the Seller’s Compliance platform.
 
-He works closely with Claude Code and modern development tools to rapidly iterate on:
+He works closely with Claude Code and the AIOS workspace to rapidly iterate on:
 
 * System architecture
 * Dispatch and scheduling workflows

@@ -20,7 +20,7 @@ Real-world scheduling is messy. This documents known edge cases, how the system 
 **Scenario**: Drag a confirmed/in-progress job back to the unscheduled queue.
 **Current behavior**: Job returns to queue. `dispatch_status` → `unscheduled`. `assigned_to` → null. Status is NOT reverted.
 **Risk**: Medium — a job can be `confirmed` but `unscheduled`, which is logically inconsistent.
-**Mitigation needed**: Revert status to `pending` when unscheduling, or block unscheduling for non-pending jobs.
+**Mitigation needed**: Revert status to `requested` when unscheduling, or block unscheduling for non-requested jobs.
 
 ### Deleting an inspector with active jobs
 **Scenario**: Inspector is deleted while they have scheduled jobs.
@@ -37,20 +37,20 @@ Real-world scheduling is messy. This documents known edge cases, how the system 
 ## Status Lifecycle Edge Cases
 
 ### Skipping statuses
-**Scenario**: Manually setting a `pending` job to `completed` without going through `confirmed` → `in_progress`.
+**Scenario**: Manually setting a `requested` job to `completed` without going through `confirmed` → `in_progress`.
 **Current behavior**: Allowed. No status machine enforcement at the database level.
 **Risk**: Medium — breaks audit trail expectations.
 **Mitigation needed**: `isValidTransition()` in the planned lifecycle service.
 
 ### Reactivating a cancelled job
 **Scenario**: A cancelled job needs to be rescheduled.
-**Current behavior**: Status can be manually set back to `pending`. No special handling.
+**Current behavior**: Status can be manually set back to `requested`. No special handling.
 **Risk**: Low — works but leaves a confusing status history.
 **Mitigation needed**: Clear "reactivate" action that resets dispatch fields.
 
 ### on_hold → what next?
 **Scenario**: Job put on hold, then conditions are met.
-**Current behavior**: Must be manually set back to `pending`.
+**Current behavior**: Must be manually set back to `requested`.
 **Risk**: Low — but easy to forget a held job.
 **Mitigation needed**: Dashboard widget showing on-hold jobs with age.
 
@@ -79,5 +79,5 @@ Real-world scheduling is messy. This documents known edge cases, how the system 
 ### Timezone handling
 **Scenario**: `scheduled_time` is stored as TIME (no timezone). `created_at` is TIMESTAMPTZ.
 **Current behavior**: Times are treated as local (Pacific). No explicit timezone conversion.
-**Risk**: Low while single-region. Would break with multi-timezone expansion.
+**Risk**: Low while operating in one timezone. Would break with multi-timezone expansion.
 **Mitigation needed**: Document assumed timezone. Consider TIMESTAMPTZ for scheduling if expanding.

@@ -3,7 +3,7 @@
 ## Current Project Layout
 
 ```
-DisptchMama/
+Sellers-Compliance/
 ├── aios/                          # AI context layer (this directory)
 │   ├── 00_overview/               # Product vision and strategy
 │   ├── 01_context/                # Business, users, terminology
@@ -98,7 +98,7 @@ DisptchMama/
 │   │   │   └── use-schedule-sync.ts
 │   │   └── utils.ts               # Utility functions (cn, etc.)
 │   │
-│   ├── services/                  # Orchestration layer (planned)
+│   ├── services/                  # Orchestration layer (active)
 │   │
 │   ├── types/
 │   │   └── database.ts            # Supabase type definitions
@@ -124,4 +124,4 @@ DisptchMama/
 - **Actions use `'use server'`** — All mutations go through server actions.
 - **Services are plain TypeScript** — No `'use server'`, no `'use client'`. Importable from either context.
 - **UI components use `@base-ui/react` primitives** — Not raw HTML where primitives exist.
-- **Hooks belong in `src/hooks/`** — Not `src/lib/hooks/` (migration pending).
+- **Hooks belong in `src/hooks/`** — Not `src/lib/hooks/`.

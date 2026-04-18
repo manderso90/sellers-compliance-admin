@@ -1,6 +1,6 @@
 # Integrations
 
-External services, APIs, and systems that DisptchMama connects to or may integrate with in the future.
+External services, APIs, and systems that Seller's Compliance connects to or may integrate with in the future.
 
 ## Current Integrations
 
@@ -9,7 +9,7 @@ External services, APIs, and systems that DisptchMama connects to or may integra
 
 | Capability | Usage |
 |-----------|-------|
-| **Database** | PostgreSQL via Supabase client. 4 tables. |
+| **Database** | PostgreSQL via Supabase client. 8 tables (profiles, inspections, properties, customers, inspection_status_history, payments, products, install_line_items). |
 | **Auth** | Email/password + OAuth. SSR cookie management. |
 | **Realtime** | postgres_changes subscription on `jobs` table. |
 | **RLS** | Row Level Security on all tables. |
@@ -20,19 +20,39 @@ External services, APIs, and systems that DisptchMama connects to or may integra
 
 **Client factories**: `src/lib/supabase/server.ts` (server) and `src/lib/supabase/client.ts` (browser).
 
-### Google Fonts
+### Google Fonts (Inter)
 **Status**: Active — design dependency
 
-Fonts loaded via `<link>` tags in `src/app/layout.tsx`:
-- **Space Grotesk** (weights: 300, 400, 500, 600) — body text
-- **Syne** (weights: 400-800) — headings
+Fonts loaded via `next/font/google` in `src/app/layout.tsx`:
+- **Inter** — all UI text (body, headings, labels)
 
-**Known issue**: `next/font` build errors in sandboxed environments due to network restrictions. Does not affect production.
+Part of the SC Bold design system.
 
-### Vercel (planned)
-**Status**: Not yet deployed
+### Vercel
+**Status**: Active — production deployment
 
-Intended deployment target. Next.js App Router is fully compatible. No Vercel-specific config exists yet.
+Seller's Compliance is deployed on Vercel. Next.js App Router with serverless functions.
+
+### Stripe
+**Status**: Active — payment processing
+
+| Capability | Usage |
+|-----------|-------|
+| **Checkout** | Online payment for inspections via `/api/stripe/create-checkout` |
+| **Webhooks** | Payment confirmation via `/api/stripe/webhook` |
+
+**Environment Variables**:
+- `STRIPE_SECRET_KEY` — Server-side API key
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Client-side key
+- `STRIPE_WEBHOOK_SECRET` — Webhook signature verification
+
+### Resend
+**Status**: Active — transactional email
+
+Used for employee invite emails via `/api/employees/invite`. SC-branded HTML templates.
+
+**Environment Variables**:
+- `RESEND_API_KEY` — API key for sending emails
 
 ## Planned Integrations
 
@@ -52,12 +72,12 @@ Intended deployment target. Next.js App Router is fully compatible. No Vercel-sp
 **Current state**: Jobs are created manually through the admin UI.
 
 ### SMS / Notification Service
-**Priority**: High (post-MVP)
+**Priority**: High
 **Purpose**: Send appointment confirmations, reminders, and schedule changes to clients and inspectors.
-**Candidates**: Twilio, Resend (already used in Seller's Compliance).
+**Candidates**: Twilio, Resend (already in use for email).
 
 ### Geocoding / Route Optimization
-**Priority**: Low (post-MVP)
+**Priority**: Low
 **Purpose**: Optimize inspector routes based on job addresses. Reduce travel time between appointments.
 **Note**: Seller's Compliance already has `geocodeProperty` in `@/lib/utils/geocoding` — potential to share.
 

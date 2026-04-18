@@ -1,6 +1,6 @@
 # Commands
 
-Standardized command system for Claude Co-Work sessions on DisptchMama.
+Standardized command system for Claude Co-Work sessions on Seller's Compliance.
 
 Commands are workflow prompts for the development agents, not runtime shell commands.
 

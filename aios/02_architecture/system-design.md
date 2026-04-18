@@ -19,7 +19,7 @@
 
 ## Architecture Layers
 
-DisptchMama follows a four-layer architecture:
+Seller's Compliance follows a four-layer architecture:
 
 ```
 ┌──────────────────────────────┐
@@ -32,7 +32,7 @@ DisptchMama follows a four-layer architecture:
 │        Actions               │  Mutations / Server Actions
 │  src/lib/actions/            │  'use server' functions
 ├──────────────────────────────┤
-│        Services (planned)    │  Orchestration layer
+│        Services              │  Orchestration layer
 │  src/services/               │  Plain TS, no directives
 ├──────────────────────────────┤
 │        Supabase              │  Client factories
@@ -54,8 +54,14 @@ Server actions that perform mutations. Each is marked `'use server'`.
 - `employee-actions.ts` — updateEmployee, deactivateEmployee, deleteEmployee
 - `schedule-mutations.ts` — updateSchedule (with auto-confirm logic)
 
-### Services (`src/services/` — planned)
+### Services (`src/services/`)
 Orchestration modules for multi-step business logic. Plain TypeScript — no `'use server'`, no `'use client'`. Importable from either context.
+- `job-lifecycle.ts` — Status validation and transitions
+- `scheduling-context.ts` — Scheduling context management
+- `scheduling-suggestions.ts` — AI/heuristic scheduling suggestions
+- `dispatch-scheduling.ts` — Dispatch logic
+- `conflict-detection.ts` — Schedule conflict detection
+- `duration-estimation.ts` — Job duration estimation
 
 ### Supabase (`src/lib/supabase/`)
 Client factories for browser and server contexts:
@@ -79,7 +85,7 @@ Field technicians who perform inspections.
 ### jobs
 Core entity — a single schedulable unit of work.
 - Job types: `Inspection`, `Work` (stored in `title` field)
-- Status lifecycle: `pending` → `confirmed` → `in_progress` → `completed` | `cancelled` | `on_hold`
+- Status lifecycle: `requested` → `confirmed` → `in_progress` → `completed` | `cancelled` | `on_hold`
 - Dispatch status: `unscheduled` → `scheduled` → `dispatched` → `en_route`
 - `has_lockbox` flag for property access
 - `assigned_to` references an inspector

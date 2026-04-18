@@ -11,7 +11,7 @@ Fills: client info, address, job type, time preference
   ↓
 createJob() server action
   ↓
-Job created with status: pending, dispatch_status: unscheduled
+Job created with status: requested, dispatch_status: unscheduled
   ↓
 Appears in Unscheduled Queue on Dispatch page
 ```
@@ -43,18 +43,18 @@ Realtime subscription pushes update → Timeline re-renders
 ## 3. Job Lifecycle (Status Transitions)
 
 ```
-pending ──→ confirmed ──→ in_progress ──→ completed
+requested ──→ confirmed ──→ in_progress ──→ completed
   │
   ├──→ cancelled
   │
-  └──→ on_hold ──→ pending (re-activate)
+  └──→ on_hold ──→ requested (re-activate)
 ```
 
 ### Status Definitions
 
 | Status | Meaning |
 |--------|---------|
-| `pending` | Job created, not yet confirmed or scheduled |
+| `requested` | Job created, not yet confirmed or scheduled |
 | `confirmed` | Job scheduled and confirmed with client/inspector |
 | `in_progress` | Inspector is actively on-site |
 | `completed` | Inspection/work finished |
@@ -99,9 +99,9 @@ Realtime pushes update → Timeline re-renders
 ## 6. Auto-Confirm Logic
 
 When a job is scheduled via dispatch (drag-and-drop), the system checks:
-- Does the job have an `assigned_to` inspector?
+- Does the job have an `assigned_inspector_id`?
 - Does the job have a `scheduled_date` and `scheduled_time`?
-- Is the current status an "early" status (pending)?
+- Is the current status an "early" status (requested)?
 
 If all conditions are met, the status is automatically advanced to `confirmed`.
 

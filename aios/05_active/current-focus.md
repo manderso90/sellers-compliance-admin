@@ -12,7 +12,7 @@
 | Avg Time to Schedule Appointment | 3-7 minutes | <2 minutes | Includes back-and-forth with client |
 | Same-Day / Next-Day Scheduling Rate | High (core offering) | Maintain | Competitive advantage |
 | Schedule Change Frequency | High | Reduce via better initial scheduling | Frequent reschedules disrupt workflow |
-| Manual Scheduling Hours (Daily) | 4-6 hours (est.) | <2 hours | Core efficiency goal of DisptchMama |
+| Manual Scheduling Hours (Daily) | 4-6 hours (est.) | <2 hours | Core efficiency goal of Seller's Compliance |
 | Inspector Utilization Rate | Variable | Optimize to 85-95% | Reduce gaps and idle time |
 | Unassigned Jobs Queue | Fluctuates daily | Near zero | Goal is real-time assignment |
 | Revenue per Inspection (Avg) | ~$99 base | Increase via add-ons | Tied to upsells (installations) |
@@ -53,7 +53,7 @@
 
 ## Automation Roadmap
 
-DisptchMama should evolve this file from static to dynamic. Future enhancements:
+Seller's Compliance should evolve this file from static to dynamic. Future enhancements:
 
 - **Auto-pull**: Daily call volume, jobs scheduled vs completed, inspector utilization
 - **Integrate with**: Dispatch system database, CRM / intake forms, phone system (call analytics)

@@ -30,7 +30,7 @@ Active workstreams and their current state. Update this as work moves forward.
 
 #### 2. Clean Migration Plan
 **Status**: Plan approved, awaiting implementation
-**What**: Refactor DisptchMama in-place following the same patterns applied to Seller's Compliance.
+**What**: Refactor Seller's Compliance in-place following the same patterns applied to Seller's Compliance.
 
 **Phases (from approved migration plan)**:
 
