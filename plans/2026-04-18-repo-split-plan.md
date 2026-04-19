@@ -101,12 +101,12 @@ Source paths are relative to the current repo root.
 - Everything else in the shared list is small, stable, and rarely changes — duplication is fine.
 
 ### Pre-existing bugs surfaced during research (NOT in scope, listed so you can decide)
-- `src/app/login/page.tsx:29` redirects to `/admin/dashboard` (does not exist; real route is `/admin`).
-- `src/app/api/auth/callback/route.ts:7` defaults `next` to `/admin/dashboard` (same).
+- ~~`src/app/login/page.tsx:29` redirects to `/admin/dashboard` (does not exist; real route is `/admin`).~~ **Fixed pre-split in commit `a445aeb` — now redirects to `/admin/dispatch` to match `src/proxy.ts:80`.**
+- ~~`src/app/api/auth/callback/route.ts:7` defaults `next` to `/admin/dashboard` (same).~~ **Fixed pre-split in commit `a445aeb` — now defaults to `/admin/dispatch`.**
 - `src/components/admin/command/CommandMetricsRow.tsx:78,87,97,107` — links to `/admin/dashboard?...` (broken).
 - `src/app/api/employees/invite/route.ts:97` — generates `${siteUrl}/auth/setup-account?...` but no `/auth/setup-account` route exists.
 
-Recommend fixing the first two (`/admin/dashboard` → `/admin`) as part of step 5 below since you're touching auth flow anyway. Leave the others alone.
+The first two bugs are already fixed in the monolith and carry forward automatically when the admin repo is cloned in Step 1. Step 5 below is now a verification step, not a code change. The remaining two bugs are still out of scope for the split.
 
 ---
 
@@ -193,20 +193,30 @@ Trim `.env.example` to admin-only vars (see env table). Commit, push, merge to m
 **Checkpoint:** Admin Vercel deploys successfully without any public code. Re-run the read-only smoke tests from step 3 at the vercel.app URL.
 **Rollback:** `git revert` the merge commit, redeploy.
 
-### Step 5 — Fix the admin login redirect (uses this opportunity)
-Same admin repo:
-- `src/app/login/page.tsx:29`: `window.location.assign('/admin/dashboard')` → `'/admin'`
-- `src/app/api/auth/callback/route.ts:7`: `searchParams.get('next') ?? '/admin/dashboard'` → `?? '/admin'`
+### Step 5 — Verify the admin login redirect (fix already applied pre-split)
+The `/admin/dashboard` → `/admin/dispatch` redirect bug was fixed in the monolith before the split (commit `a445aeb`). The clone in Step 1 carries the fix forward automatically — **no code change needed here**. Just confirm both files still show `/admin/dispatch` as the destination:
 
-Test locally:
+- `src/app/login/page.tsx:29`: `window.location.assign('/admin/dispatch')`
+- `src/app/api/auth/callback/route.ts:7`: `searchParams.get('next') ?? '/admin/dispatch'`
+
+Quick grep to confirm:
 ```bash
 cd sellers-compliance-admin
+grep -n "admin/dashboard" src/app/login/page.tsx src/app/api/auth/callback/route.ts
+# Expect: no output (zero matches). If anything comes back, something got lost in the clone.
+grep -n "admin/dispatch" src/app/login/page.tsx src/app/api/auth/callback/route.ts
+# Expect: one match per file.
+```
+
+Optional local test:
+```bash
 cp .env.example .env.local  # fill in real values
 npm install
 npm run dev
-# visit http://localhost:3000/login, sign in, confirm landing on /admin
+# visit http://localhost:3000/login, sign in, confirm landing on /admin/dispatch
 ```
-Commit, push, deploy.
+
+If the greps look right (and optionally the local sign-in lands on `/admin/dispatch`), move on. No commit in this step.
 
 ### Step 6 — Attach the admin subdomain
 In Vercel admin project → Settings → Domains:
@@ -237,7 +247,7 @@ Test the magic-link / password-reset flow if you use either.
 ### Step 8 — End-to-end (mutation) test on the real subdomain
 This is the first step where you intentionally write to production data. Do it on `admin.sellerscompliance.com`, not the vercel.app URL, so you're exercising the actual domain + cookie path customers/admins will use.
 
-- Log in at `https://admin.sellerscompliance.com/login`. Confirm landing on `/admin`.
+- Log in at `https://admin.sellerscompliance.com/login`. Confirm landing on `/admin/dispatch`.
 - Walk every admin page.
 - Happy-path mutations (clean up each one when done):
   - **Create a test job** in `/admin/jobs/new` with a clearly-marked test address (e.g., "TEST — DELETE ME"). Confirm it appears in the list and on `/admin/dispatch`.
@@ -363,8 +373,8 @@ Already covered in step 6. Recap:
 2. Do NOT touch the apex (`sellerscompliance.com`) DNS record at any point — it keeps pointing at the existing (now public-only) Vercel project.
 
 ## Auth redirect changes — what files actually change
-- `src/app/login/page.tsx:29` (admin repo only): `/admin/dashboard` → `/admin`
-- `src/app/api/auth/callback/route.ts:7` (admin repo only): default next → `/admin`
+- `src/app/login/page.tsx:29` (fixed pre-split in monolith, commit `a445aeb`): `/admin/dashboard` → `/admin/dispatch`. Carries forward to admin repo via clone.
+- `src/app/api/auth/callback/route.ts:7` (fixed pre-split in monolith, commit `a445aeb`): default next → `/admin/dispatch`. Carries forward to admin repo via clone.
 - `src/proxy.ts` (admin repo) — NO change needed; redirects are same-origin (`/login` ↔ `/admin/dispatch`) and now both live on `admin.sellerscompliance.com`.
 - Public repo: no auth code remains.
 
@@ -374,9 +384,9 @@ user → admin.sellerscompliance.com/anything-under-/admin
   → proxy.ts checks Supabase session
   → if not logged in: 302 to /login (same origin)
   → login form posts to Supabase, sets cookie on admin.sellerscompliance.com
-  → window.location.assign('/admin') → command center
+  → window.location.assign('/admin/dispatch') → dispatch board
 ```
-Local test (admin repo): `npm run dev`, visit `http://localhost:3000/admin/dispatch`, confirm bounce to `/login`, sign in, land on `/admin`.
+Local test (admin repo): `npm run dev`, visit `http://localhost:3000/admin/dispatch`, confirm bounce to `/login`, sign in, land on `/admin/dispatch`.
 
 ---
 
@@ -450,7 +460,7 @@ Run after step 11. Both must pass before considering this done.
 - [ ] Observability dashboards (Sentry/Analytics/etc.) still receiving events from the public project.
 
 **Admin portal (admin.sellerscompliance.com)**
-- [ ] `/login` loads, sign-in works, lands on `/admin`.
+- [ ] `/login` loads, sign-in works, lands on `/admin/dispatch`.
 - [ ] `/admin` (command center) renders metrics row, alerts, all cards.
 - [ ] `/admin/dispatch` loads, drag-and-drop schedule update persists.
 - [ ] `/admin/jobs` lists jobs, `/admin/jobs/new` creates one, `/admin/jobs/[id]` edits and deletes.
