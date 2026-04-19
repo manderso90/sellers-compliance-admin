@@ -26,7 +26,7 @@ export default function LoginPage() {
       return
     }
 
-    window.location.assign('/admin/dashboard')
+    window.location.assign('/admin/dispatch')
   }
 
   return (
