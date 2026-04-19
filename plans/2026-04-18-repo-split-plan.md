@@ -516,3 +516,5 @@ The first week is when drift and missed edge cases surface. Run through this dai
 - [ ] Any schema change → follow the "Schema change workflow going forward" section above. If you catch yourself hand-editing `database.ts` in either repo, stop and regenerate.
 - [ ] Any new env var added to one project → ask: does the other project need it? Document in `.env.example` of the relevant repo(s).
 - [ ] Any new shared utility → first question is still "duplicate or extract?" The answer stays "duplicate" until the duplicated surface exceeds ~10 files or drifts meaningfully. Revisit only then.
+
+<!-- Step 5 verified clean on April 19, 2026 — greps returned expected results -->
