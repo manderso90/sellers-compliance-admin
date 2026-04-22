@@ -360,6 +360,17 @@ Prefer simple, working solutions over theoretical perfection.
 
 Do not add unnecessary abstraction unless it clearly improves maintainability or reuse.
 
+\#\# Cross-Repo Sync Rule
+
+Seller’s Compliance is split across two repositories:
+
+\- \`Sellers-Compliance\` — public site, customer order flow, shared AIOS home
+\- \`sellers-compliance-admin\` — admin subdomain, dispatch, internal ops
+
+Each repo maintains its own authoritative \`aios/\` tree. Entries tied to shared state — the Supabase database schema, cross-repo business logic, shared terminology — must be mirrored into both \`aios/\` trees manually. Repo-specific entries (single-repo file paths, build config, proxy rules) belong in only one.
+
+When in doubt, mirror.
+
 \---
 
 \# Command Reference

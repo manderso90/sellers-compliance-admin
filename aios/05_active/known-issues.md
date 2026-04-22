@@ -53,6 +53,13 @@ Bugs, tech debt, and structural problems identified in the Seller's Compliance c
 **Problem**: If a browser loses its websocket connection and misses events, the timeline shows stale data until a new event arrives.
 **Fix**: Add reconnection handler that triggers `router.refresh()`.
 
+### F4: `inspections.status` CHECK drift (live DB vs. code)
+**Severity**: Medium
+**Problem**: Live DB `inspections_status_check` allows 11 values (`requested`, `awaiting_confirmation`, `alternatives_offered`, `confirmed`, `in_progress`, `work_in_progress`, `completed`, `no_show`, `hold`, `needs_rescheduling`, `cancelled`). `aios/01_context/terminology.md`, `supabase/schema.sql` (pre-2026-04-22), and `services/job-lifecycle.ts#VALID_TRANSITIONS` all assume the narrower 6-state model (`requested` → `confirmed` → `in_progress` → `completed` | `cancelled` | `on_hold`). Hand-written UI and state-machine enforcement are out of step with the DB allow-list.
+**Discovered**: 2026-04-22 during Step 0 investigation of plan `2026-04-22-fix-service-type-check-constraint.md` (in `sellers-compliance-admin/plans/`).
+**Impact**: A row with `status = 'awaiting_confirmation'` (possible via other code paths or manual SQL) can be fetched and rendered, but no transition logic will accept it as a valid `from` state — the lifecycle service will silently refuse any transition. Also: UI status dropdowns don't expose these states even when they're valid in the DB.
+**Fix**: Decide — either widen the code's state machine to match live (document each new state's meaning, required UI treatment, valid transitions), or narrow the DB CHECK to match the 6-state model and migrate any existing rows out of the deprecated states. Needs its own plan.
+
 ## Build Issues
 
 ### B1: Google Fonts fetch errors in sandbox
