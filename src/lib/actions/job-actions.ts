@@ -14,6 +14,21 @@ type InspectionUpdate = Database['public']['Tables']['inspections']['Update']
 type StatusHistoryInsert = Database['public']['Tables']['inspection_status_history']['Insert']
 
 /**
+ * Surface Postgres errors with their code/message in server logs, then
+ * re-throw a short user-safe summary so the form banner can display
+ * "Database error (23514) during createJob.insertInspection" instead of
+ * the production RSC-scrubbed generic string.
+ */
+function surfacePgError(err: unknown, context: string): never {
+  const pg = err as { code?: string; message?: string; details?: string | null }
+  if (pg?.code) {
+    console.error(`[job-actions:${context}] pg ${pg.code}: ${pg.message}${pg.details ? ` (${pg.details})` : ''}`)
+    throw new Error(`Database error (${pg.code}) during ${context}`)
+  }
+  throw err instanceof Error ? err : new Error(`Unexpected error during ${context}`)
+}
+
+/**
  * Ensure a customer row exists for the given name/email and return its id.
  * If email is missing, we synthesize a deterministic placeholder so the NOT NULL
  * constraint is satisfied while keeping lookups stable for later edits.
@@ -49,7 +64,7 @@ async function ensureCustomer(
     .select('id')
     .single()
 
-  if (error || !inserted) throw error ?? new Error('Failed to create customer')
+  if (error || !inserted) surfacePgError(error ?? new Error('Failed to create customer'), 'ensureCustomer')
   return inserted.id
 }
 
@@ -73,7 +88,7 @@ async function createProperty(
     .select('id')
     .single()
 
-  if (error || !data) throw error ?? new Error('Failed to create property')
+  if (error || !data) surfacePgError(error ?? new Error('Failed to create property'), 'createProperty')
   return data.id
 }
 
@@ -135,7 +150,8 @@ export async function createJob(data: {
   const inspectionPayload: InspectionInsert = {
     customer_id: customerId,
     property_id: propertyId,
-    service_type: title,
+    service_type: 'standard',
+    includes_installation: title === 'Work Completion',
     status: 'requested',
     dispatch_status: 'unscheduled',
     requested_date: requestedDate,
@@ -150,7 +166,7 @@ export async function createJob(data: {
     .select('id')
     .single()
 
-  if (inspError || !newInsp) throw inspError ?? new Error('Failed to create inspection')
+  if (inspError || !newInsp) surfacePgError(inspError ?? new Error('Failed to create inspection'), 'createJob.insertInspection')
 
   // 4. Log initial status to history
   const historyPayload: StatusHistoryInsert = {
@@ -273,7 +289,7 @@ export async function updateJob(
       .from('customers')
       .update(customerUpdate)
       .eq('id', inspection.customer_id)
-    if (custError) throw custError
+    if (custError) surfacePgError(custError, 'updateJob.updateCustomer')
   }
 
   // --- Property updates ---
@@ -288,12 +304,14 @@ export async function updateJob(
       .from('properties')
       .update(propertyUpdate)
       .eq('id', inspection.property_id)
-    if (propError) throw propError
+    if (propError) surfacePgError(propError, 'updateJob.updateProperty')
   }
 
   // --- Inspection updates ---
   const inspectionUpdate: InspectionUpdate = {}
-  if (data.title !== undefined) inspectionUpdate.service_type = data.title.trim()
+  if (data.title !== undefined) {
+    inspectionUpdate.includes_installation = data.title.trim() === 'Work Completion'
+  }
   if (data.has_lockbox !== undefined || data.lockbox_code !== undefined) {
     if (data.lockbox_code !== undefined) {
       const trimmed = data.lockbox_code.trim()
@@ -326,7 +344,7 @@ export async function updateJob(
       .from('inspections')
       .update(inspectionUpdate)
       .eq('id', jobId)
-    if (inspError) throw inspError
+    if (inspError) surfacePgError(inspError, 'updateJob.updateInspection')
   }
 
   revalidatePath('/admin/jobs')
@@ -351,7 +369,7 @@ export async function assignInspector(jobId: string, inspectorId: string | null)
     .update(payload)
     .eq('id', jobId)
 
-  if (error) throw error
+  if (error) surfacePgError(error, 'assignInspector')
 
   revalidatePath('/admin/jobs')
   revalidatePath(`/admin/jobs/${jobId}`)
@@ -367,7 +385,7 @@ export async function deleteJob(jobId: string) {
 
   const { error } = await supabase.from('inspections').delete().eq('id', jobId)
 
-  if (error) throw error
+  if (error) surfacePgError(error, 'deleteJob')
 
   revalidatePath('/admin/jobs')
   revalidatePath('/admin/dispatch')

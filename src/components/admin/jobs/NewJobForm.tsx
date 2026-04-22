@@ -70,11 +70,11 @@ export function NewJobForm() {
             <input
               type="radio"
               name="jobType"
-              checked={title === 'Work'}
-              onChange={() => setTitle('Work')}
+              checked={title === 'Work Completion'}
+              onChange={() => setTitle('Work Completion')}
               className="h-4 w-4 border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
             />
-            <span className="text-sm text-slate-700">Work</span>
+            <span className="text-sm text-slate-700">Work Completion</span>
           </label>
         </div>
       </div>

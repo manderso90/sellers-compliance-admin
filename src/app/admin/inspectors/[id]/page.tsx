@@ -123,7 +123,7 @@ export default async function InspectorDetailPage({
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-800">
-                    {job.service_type}
+                    {job.includes_installation ? 'Work Completion' : 'Inspection'}
                   </span>
                   <span className="text-xs text-slate-400">
                     {job.status}

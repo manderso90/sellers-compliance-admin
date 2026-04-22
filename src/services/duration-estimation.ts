@@ -17,7 +17,7 @@ const DEFAULT_DURATION = 15
  *   user override and return it as-is.
  * - Otherwise, apply rule-based estimation:
  *   - "Inspection" → 30 min base
- *   - "Work" → 60 min base
+ *   - "Work Completion" → 60 min base
  *   - Other → 45 min base
  *   - No lockbox → add 15 min (may need to wait for access)
  */
@@ -43,9 +43,9 @@ export function estimateDuration(job: {
   if (titleLower === 'inspection') {
     minutes = 30
     factors.push('Inspection: 30 min base')
-  } else if (titleLower === 'work') {
+  } else if (titleLower === 'work completion') {
     minutes = 60
-    factors.push('Work order: 60 min base')
+    factors.push('Work Completion: 60 min base')
   } else {
     minutes = 45
     factors.push(`"${job.title}": 45 min base (default)`)

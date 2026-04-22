@@ -30,7 +30,7 @@ function flattenInspection(
     client_phone: cust?.phone ?? null,
     client_email: cust?.email ?? null,
     // Mapped fields
-    title: row.service_type ?? '',
+    title: row.includes_installation ? 'Work Completion' : 'Inspection',
     has_lockbox: !!row.lockbox_code,
     notes: row.admin_notes ?? null,
     inspector_name: inspectorName,

@@ -184,8 +184,8 @@ export function JobEditForm({ job }: JobEditFormProps) {
             <span className="text-sm text-slate-700">Inspection</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="jobType" checked={title === 'Work'} onChange={() => setTitle('Work')} className="h-4 w-4" />
-            <span className="text-sm text-slate-700">Work</span>
+            <input type="radio" name="jobType" checked={title === 'Work Completion'} onChange={() => setTitle('Work Completion')} className="h-4 w-4" />
+            <span className="text-sm text-slate-700">Work Completion</span>
           </label>
         </div>
       </div>

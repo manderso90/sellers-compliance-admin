@@ -75,7 +75,7 @@ export async function generateSuggestions(jobId: string): Promise<SuggestionResu
   // Fetch the target inspection with property join (for address/city)
   const { data: inspection, error } = await supabase
     .from('inspections')
-    .select('id, service_type, lockbox_code, estimated_duration_minutes, requested_date, requested_time_preference, properties(street_address, city)')
+    .select('id, service_type, includes_installation, lockbox_code, estimated_duration_minutes, requested_date, requested_time_preference, properties(street_address, city)')
     .eq('id', jobId)
     .single()
 
@@ -86,7 +86,7 @@ export async function generateSuggestions(jobId: string): Promise<SuggestionResu
 
   const targetJob: SchedulingTargetJob = {
     id: inspection.id,
-    title: inspection.service_type,
+    title: inspection.includes_installation ? 'Work Completion' : 'Inspection',
     address: prop.street_address ?? '',
     city: prop.city ?? '',
     has_lockbox: !!inspection.lockbox_code,

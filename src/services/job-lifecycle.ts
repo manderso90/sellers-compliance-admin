@@ -39,7 +39,7 @@ export function getNextStatuses(currentStatus: JobStatus): JobStatus[] {
 
 // --- Job Creation Validation ---
 
-const VALID_TITLES = ['Inspection', 'Work'] as const
+const VALID_TITLES = ['Inspection', 'Work Completion'] as const
 const VALID_TIME_PREFERENCES = ['morning', 'afternoon', 'anytime', 'flexible'] as const
 const MIN_DURATION_MINUTES = 15
 
@@ -61,7 +61,7 @@ export function validateJobInput(data: {
   const errors: string[] = []
 
   if (!data.title || !(VALID_TITLES as readonly string[]).includes(data.title)) {
-    errors.push('Title must be "Inspection" or "Work"')
+    errors.push('Title must be "Inspection" or "Work Completion"')
   }
 
   if (!data.address || data.address.trim().length === 0) {

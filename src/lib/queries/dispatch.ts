@@ -42,7 +42,7 @@ export async function getDispatchTimeline(
   // Get all scheduled inspections for the date, with property and customer joins
   const { data: inspections, error: inspError } = await supabase
     .from('inspections')
-    .select('id, status, service_type, scheduled_time, scheduled_end, estimated_duration_minutes, dispatch_status, assigned_inspector_id, lockbox_code, admin_notes, properties(street_address, city, zip_code), customers(full_name)')
+    .select('id, status, service_type, includes_installation, scheduled_time, scheduled_end, estimated_duration_minutes, dispatch_status, assigned_inspector_id, lockbox_code, admin_notes, properties(street_address, city, zip_code), customers(full_name)')
     .eq('scheduled_date', targetDate)
     .not('assigned_inspector_id', 'is', null)
     .not('status', 'eq', 'cancelled')
@@ -65,7 +65,7 @@ export async function getDispatchTimeline(
     jobsByInspector.get(inspectorId)!.push({
       id: row.id,
       status: row.status,
-      title: row.service_type,
+      title: row.includes_installation ? 'Work Completion' : 'Inspection',
       scheduled_time: row.scheduled_time,
       scheduled_end: row.scheduled_end ?? null,
       estimated_duration_minutes: row.estimated_duration_minutes ?? 40,
@@ -104,7 +104,7 @@ export interface UnscheduledJob {
 export async function getUnscheduledJobs(supabase: SupabaseClient<Database>): Promise<UnscheduledJob[]> {
   const { data, error } = await supabase
     .from('inspections')
-    .select('id, status, service_type, requested_date, requested_time_preference, admin_notes, estimated_duration_minutes, created_at, lockbox_code, assigned_inspector_id, scheduled_date, properties(street_address, city, zip_code), customers(full_name)')
+    .select('id, status, service_type, includes_installation, requested_date, requested_time_preference, admin_notes, estimated_duration_minutes, created_at, lockbox_code, assigned_inspector_id, scheduled_date, properties(street_address, city, zip_code), customers(full_name)')
     .in('status', ['requested'])
     .or('scheduled_date.is.null,assigned_inspector_id.is.null')
     .order('requested_date', { ascending: true, nullsFirst: false })
@@ -119,7 +119,7 @@ export async function getUnscheduledJobs(supabase: SupabaseClient<Database>): Pr
     return {
       id: row.id,
       status: row.status,
-      title: row.service_type,
+      title: row.includes_installation ? 'Work Completion' : 'Inspection',
       requested_date: row.requested_date,
       requested_time_preference: row.requested_time_preference,
       notes: row.admin_notes,
