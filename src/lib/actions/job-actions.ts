@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { isValidTransition, validateJobInput } from '@/services/job-lifecycle'
+import { isValidTransition, validateIntakeInput, validateJobInput } from '@/services/job-lifecycle'
 import type { Database, JobStatus } from '@/types/database'
 
 type CustomerInsert = Database['public']['Tables']['customers']['Insert']
@@ -32,19 +32,25 @@ function surfacePgError(err: unknown, context: string): never {
  * Ensure a customer row exists for the given name/email and return its id.
  * If email is missing, we synthesize a deterministic placeholder so the NOT NULL
  * constraint is satisfied while keeping lookups stable for later edits.
+ *
+ * When a row already exists for the email, we return its id as-is and do NOT
+ * overwrite customer_type / company_name / phone. Existing-customer wins.
  */
 async function ensureCustomer(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  name: string,
-  email: string | null,
-  phone: string | null
+  input: {
+    full_name: string
+    email: string | null
+    phone: string | null
+    customer_type?: string
+    company_name?: string | null
+  }
 ): Promise<string> {
   const resolvedEmail =
-    email && email.length > 0
-      ? email
-      : `walkin+${(name || 'guest').toLowerCase().replace(/[^a-z0-9]+/g, '-')}@sellerscompliance.local`
+    input.email && input.email.length > 0
+      ? input.email
+      : `walkin+${(input.full_name || 'guest').toLowerCase().replace(/[^a-z0-9]+/g, '-')}@sellerscompliance.local`
 
-  // Try to find an existing customer first
   const { data: existing } = await supabase
     .from('customers')
     .select('id')
@@ -54,9 +60,11 @@ async function ensureCustomer(
   if (existing?.id) return existing.id
 
   const payload: CustomerInsert = {
-    full_name: name || 'Walk-in',
+    full_name: input.full_name || 'Walk-in',
     email: resolvedEmail,
-    phone: phone,
+    phone: input.phone,
+    company_name: input.company_name ?? null,
+    ...(input.customer_type ? { customer_type: input.customer_type } : {}),
   }
   const { data: inserted, error } = await supabase
     .from('customers')
@@ -71,16 +79,22 @@ async function ensureCustomer(
 /** Create a property record and return its id. */
 async function createProperty(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  address: string,
-  city: string,
-  state: string,
-  zipCode: string
+  input: {
+    street_address: string
+    unit?: string | null
+    city: string
+    state?: string
+    zip_code: string
+    property_type?: string
+  }
 ): Promise<string> {
   const payload: PropertyInsert = {
-    street_address: address,
-    city: city || '',
-    state: state || 'CA',
-    zip_code: zipCode || '',
+    street_address: input.street_address,
+    unit: input.unit ?? null,
+    city: input.city,
+    state: input.state || 'CA',
+    zip_code: input.zip_code,
+    ...(input.property_type ? { property_type: input.property_type } : {}),
   }
   const { data, error } = await supabase
     .from('properties')
@@ -92,73 +106,90 @@ async function createProperty(
   return data.id
 }
 
-export async function createJob(data: {
-  title: string
-  client_name?: string
-  client_phone?: string
-  client_email?: string
-  address: string
-  city?: string
-  state?: string
-  zip_code?: string
-  has_lockbox?: boolean
-  lockbox_code?: string
+export interface CreateJobInput {
+  // Property
+  street_address: string
+  unit?: string
+  city: string
+  zip_code: string
+  property_type: string
+
+  // Contact
+  customer_full_name: string
+  customer_email: string
+  customer_phone?: string
+  customer_type: string
+  company_name?: string
+
+  // Scheduling
   requested_date?: string
   requested_time_preference?: string
-  estimated_duration_minutes?: number
-  notes?: string
-}) {
+
+  // Service
+  service_type: string
+  includes_installation: boolean
+
+  // Access & notes
+  access_instructions?: string
+  lockbox_code?: string
+  contact_on_site?: string
+  listing_agent_name?: string
+  public_notes?: string
+}
+
+export async function createJob(data: CreateJobInput): Promise<{ id: string }> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Server-side validation via services layer
-  const validation = validateJobInput({
-    title: data.title,
-    address: data.address,
-    estimated_duration_minutes: data.estimated_duration_minutes,
+  const validation = validateIntakeInput({
+    street_address: data.street_address,
+    city: data.city,
+    zip_code: data.zip_code,
+    property_type: data.property_type,
+    customer_full_name: data.customer_full_name,
+    customer_email: data.customer_email,
+    customer_phone: data.customer_phone,
+    customer_type: data.customer_type,
+    service_type: data.service_type,
     requested_time_preference: data.requested_time_preference,
   })
   if (!validation.valid) {
     throw new Error(validation.errors.join('; '))
   }
 
-  // Normalize
-  const title = data.title.trim()
-  const clientName = data.client_name?.trim() || ''
-  const clientEmail = data.client_email?.trim() || null
-  const clientPhone = data.client_phone?.trim() || null
-  const address = data.address.trim()
-  const city = data.city?.trim() || ''
-  const state = data.state?.trim() || 'CA'
-  const zipCode = data.zip_code?.trim() || ''
-  const lockboxCode = data.lockbox_code?.trim() || (data.has_lockbox ? 'TBD' : null)
-  const requestedDate = data.requested_date?.trim() || null
-  const requestedTimePref = data.requested_time_preference?.trim() || null
-  const estDuration = data.estimated_duration_minutes ?? 15
-  const notes = data.notes?.trim() || null
+  const customerId = await ensureCustomer(supabase, {
+    full_name: data.customer_full_name.trim(),
+    email: data.customer_email.trim(),
+    phone: data.customer_phone?.trim() || null,
+    customer_type: data.customer_type,
+    company_name: data.company_name?.trim() || null,
+  })
 
-  // 1. Ensure customer exists (upsert by email)
-  const customerId = await ensureCustomer(supabase, clientName, clientEmail, clientPhone)
+  const propertyId = await createProperty(supabase, {
+    street_address: data.street_address.trim(),
+    unit: data.unit?.trim() || null,
+    city: data.city.trim(),
+    zip_code: data.zip_code.trim(),
+    property_type: data.property_type,
+  })
 
-  // 2. Create property
-  const propertyId = await createProperty(supabase, address, city, state, zipCode)
-
-  // 3. Create inspection
   const inspectionPayload: InspectionInsert = {
     customer_id: customerId,
     property_id: propertyId,
-    service_type: 'standard',
-    includes_installation: title === 'Work Completion',
     status: 'requested',
     dispatch_status: 'unscheduled',
-    requested_date: requestedDate,
-    requested_time_preference: requestedTimePref,
-    estimated_duration_minutes: estDuration,
-    lockbox_code: lockboxCode,
-    admin_notes: notes,
+    service_type: data.service_type,
+    includes_installation: data.includes_installation,
+    requested_date: data.requested_date?.trim() || null,
+    requested_time_preference: data.requested_time_preference?.trim() || null,
+    access_instructions: data.access_instructions?.trim() || null,
+    lockbox_code: data.lockbox_code?.trim() || null,
+    contact_on_site: data.contact_on_site?.trim() || null,
+    listing_agent_name: data.listing_agent_name?.trim() || null,
+    public_notes: data.public_notes?.trim() || null,
   }
   const { data: newInsp, error: inspError } = await supabase
     .from('inspections')
@@ -168,7 +199,6 @@ export async function createJob(data: {
 
   if (inspError || !newInsp) surfacePgError(inspError ?? new Error('Failed to create inspection'), 'createJob.insertInspection')
 
-  // 4. Log initial status to history
   const historyPayload: StatusHistoryInsert = {
     inspection_id: newInsp.id,
     changed_by: user.id,
@@ -180,6 +210,8 @@ export async function createJob(data: {
 
   revalidatePath('/admin/jobs')
   revalidatePath('/admin/dispatch')
+
+  return { id: newInsp.id }
 }
 
 export async function updateJobStatus(jobId: string, newStatus: JobStatus) {

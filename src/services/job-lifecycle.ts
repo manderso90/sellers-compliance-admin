@@ -37,11 +37,18 @@ export function getNextStatuses(currentStatus: JobStatus): JobStatus[] {
   return VALID_TRANSITIONS[currentStatus]
 }
 
-// --- Job Creation Validation ---
+// --- Job Input Validation ---
 
 const VALID_TITLES = ['Inspection', 'Work Completion'] as const
 const VALID_TIME_PREFERENCES = ['morning', 'afternoon', 'anytime', 'flexible'] as const
+const VALID_PROPERTY_TYPES = ['single_family', 'condo', 'townhouse', 'multi_family', 'other'] as const
+const VALID_CUSTOMER_TYPES = ['agent', 'broker', 'transaction_coordinator', 'seller', 'escrow', 'other'] as const
+const VALID_SERVICE_TYPES = ['standard', 'expedited', 'reinspection'] as const
 const MIN_DURATION_MINUTES = 15
+
+export type PropertyType = typeof VALID_PROPERTY_TYPES[number]
+export type CustomerType = typeof VALID_CUSTOMER_TYPES[number]
+export type ServiceType = typeof VALID_SERVICE_TYPES[number]
 
 export interface JobInputErrors {
   valid: boolean
@@ -73,6 +80,74 @@ export function validateJobInput(data: {
     data.estimated_duration_minutes < MIN_DURATION_MINUTES
   ) {
     errors.push(`Duration must be at least ${MIN_DURATION_MINUTES} minutes`)
+  }
+
+  if (
+    data.requested_time_preference !== undefined &&
+    data.requested_time_preference !== null &&
+    data.requested_time_preference !== '' &&
+    !(VALID_TIME_PREFERENCES as readonly string[]).includes(data.requested_time_preference)
+  ) {
+    errors.push('Invalid time preference')
+  }
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Full intake-form validation. Checks required fields and CHECK-constraint
+ * enum values so we surface problems before hitting Postgres. Mirrors the
+ * CHECK constraints in supabase/schema.sql for customers, properties, and
+ * inspections.
+ */
+export function validateIntakeInput(data: {
+  street_address?: string
+  city?: string
+  zip_code?: string
+  property_type?: string
+  customer_full_name?: string
+  customer_email?: string
+  customer_phone?: string | null
+  customer_type?: string
+  service_type?: string
+  requested_time_preference?: string | null
+}): JobInputErrors {
+  const errors: string[] = []
+
+  if (!data.street_address || data.street_address.trim().length === 0) {
+    errors.push('Street address is required')
+  }
+  if (!data.city || data.city.trim().length === 0) {
+    errors.push('City is required')
+  }
+  if (!data.zip_code || !/^\d{5}$/.test(data.zip_code.trim())) {
+    errors.push('Zip code must be 5 digits')
+  }
+  if (
+    !data.property_type ||
+    !(VALID_PROPERTY_TYPES as readonly string[]).includes(data.property_type)
+  ) {
+    errors.push('Invalid property type')
+  }
+
+  if (!data.customer_full_name || data.customer_full_name.trim().length === 0) {
+    errors.push('Customer full name is required')
+  }
+  if (!data.customer_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email.trim())) {
+    errors.push('Valid customer email is required')
+  }
+  if (
+    !data.customer_type ||
+    !(VALID_CUSTOMER_TYPES as readonly string[]).includes(data.customer_type)
+  ) {
+    errors.push('Invalid customer role')
+  }
+
+  if (
+    !data.service_type ||
+    !(VALID_SERVICE_TYPES as readonly string[]).includes(data.service_type)
+  ) {
+    errors.push('Invalid service type')
   }
 
   if (

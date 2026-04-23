@@ -53,6 +53,7 @@ Active workstreams and their current state. Update this as work moves forward.
 
 | Date | Item |
 |------|------|
+| 2026-04-22 | New-job intake form expanded to 17 fields across 5 sections (plan: `plans/2026-04-22-richer-new-job-form.md`). `validateIntakeInput` added to services layer. `createJob` action rewritten to handle full intake payload. Prereq: `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` must be set in Vercel + `.env.local` for Places autocomplete; form falls back to plain input if missing. |
 | 2026-04-08 | AIOS v2 refined to 22-file elite structure |
 | 2026-04-08 | AIOS v2 structure created (initial 13 files) |
 | 2026-04-08 | Full codebase audit completed (57 source files, all config, all context) |
