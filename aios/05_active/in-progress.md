@@ -53,6 +53,7 @@ Active workstreams and their current state. Update this as work moves forward.
 
 | Date | Item |
 |------|------|
+| 2026-04-26 | `/admin/jobs` upgraded with summary cards, status tabs, search, and pagination (plan: `plans/2026-04-22-jobs-list-upgrade.md`). New components: `JobsSummaryCards`, `JobsFilters`, `JobsPagination`. `getJobsList` now accepts `{status, scope, search, page, pageSize}` and returns `{jobs, total}`; new `getJobsSummaryCounts` powers the cards. URL vocabulary: `status`, `scope`, `search`, `page`. |
 | 2026-04-22 | `/admin/customers` restored: list with inspection counts, 3-tab filter (All/Agents/Sellers), search, inline edit and block-delete dialogs, sidebar link between Jobs and Inspectors (plan: `plans/2026-04-22-customers-list-and-detail.md`). Delete is blocked when inspections reference the customer. |
 | 2026-04-22 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` rotated in Google Cloud; new value pushed to Vercel Dev + Prod. Preview not yet set due to Vercel CLI v50.40.0 bug — needs CLI upgrade or one-time dashboard add. |
 | 2026-04-22 | New-job intake form expanded to 17 fields across 5 sections (plan: `plans/2026-04-22-richer-new-job-form.md`). `validateIntakeInput` added to services layer. `createJob` action rewritten to handle full intake payload. Prereq: `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` must be set in Vercel + `.env.local` for Places autocomplete; form falls back to plain input if missing. |
