@@ -4,6 +4,7 @@ import { JobsTable } from '@/components/admin/jobs/JobsTable'
 import { JobsSummaryCards } from '@/components/admin/jobs/JobsSummaryCards'
 import { JobsFilters } from '@/components/admin/jobs/JobsFilters'
 import { JobsPagination } from '@/components/admin/jobs/JobsPagination'
+import { ScheduleSyncClient } from '@/components/admin/shared/ScheduleSyncClient'
 import type { JobsListScope } from '@/lib/queries/jobs'
 
 const PAGE_SIZE = 30
@@ -63,6 +64,7 @@ export default async function JobsPage({
 
   return (
     <div className="space-y-4">
+      <ScheduleSyncClient />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[24px] font-bold text-[#2B2B2B] tracking-tight">Jobs</h1>

@@ -379,6 +379,7 @@ export async function updateJob(
     if (inspError) surfacePgError(inspError, 'updateJob.updateInspection')
   }
 
+  revalidatePath('/admin')
   revalidatePath('/admin/jobs')
   revalidatePath(`/admin/jobs/${jobId}`)
   revalidatePath('/admin/dispatch')

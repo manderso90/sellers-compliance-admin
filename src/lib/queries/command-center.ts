@@ -296,6 +296,7 @@ export async function getInspectorWorkloads(
     .from('profiles')
     .select('id, full_name')
     .eq('is_active', true)
+    .contains('roles', ['inspector'])
     .order('full_name')
 
   if (inspError) throw inspError

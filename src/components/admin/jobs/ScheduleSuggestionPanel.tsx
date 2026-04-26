@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateSuggestions, applySuggestion, type SuggestionResult } from '@/lib/actions/scheduling-actions'
 import type { ScheduleSuggestion } from '@/services/scheduling-suggestions'
-import { Sparkles, Clock, User, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react'
+import { Sparkles, Clock, User, AlertTriangle, CheckCircle, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface ScheduleSuggestionPanelProps {
   jobId: string
@@ -19,6 +19,7 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
   const [applyingId, setApplyingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [applied, setApplied] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
 
   if (isTerminal) return null
 
@@ -86,29 +87,43 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setIsCollapsed((c) => !c)}
+          className="flex items-center gap-2 text-sm font-semibold text-slate-700 uppercase tracking-wide hover:text-slate-900 transition-colors"
+          aria-expanded={!isCollapsed}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 text-slate-500" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-slate-500" />
+          )}
           <Sparkles className="w-4 h-4 text-[#FDE047]" />
           Smart Scheduling
-        </h3>
-        <button
-          onClick={handleGenerate}
-          disabled={isPending}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-[#FDE047] text-black border-2 border-black rounded-md hover:bg-yellow-300 transition-colors disabled:opacity-50"
-        >
-          {isPending && !applyingId ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Analyzing…
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-3.5 h-3.5" />
-              {result ? 'Refresh' : 'Get Suggestions'}
-            </>
-          )}
         </button>
+        {!isCollapsed && (
+          <button
+            onClick={handleGenerate}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-[#FDE047] text-black border-2 border-black rounded-md hover:bg-yellow-300 transition-colors disabled:opacity-50"
+          >
+            {isPending && !applyingId ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Analyzing…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                {result ? 'Refresh' : 'Get Suggestions'}
+              </>
+            )}
+          </button>
+        )}
       </div>
 
+      {!isCollapsed && (
+        <>
       {/* Error state */}
       {error && (
         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-xs text-red-700">
@@ -210,6 +225,8 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
             )
           })}
         </div>
+      )}
+        </>
       )}
     </div>
   )

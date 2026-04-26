@@ -1,11 +1,14 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
 import { updateJob } from '@/lib/actions/job-actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { Job } from '@/types/database'
+import { formatTime12Hour } from '@/lib/utils/formatting'
 import { Loader2, Pencil, X } from 'lucide-react'
 
 interface JobEditFormProps {
@@ -13,6 +16,7 @@ interface JobEditFormProps {
 }
 
 export function JobEditForm({ job }: JobEditFormProps) {
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
@@ -86,6 +90,7 @@ export function JobEditForm({ job }: JobEditFormProps) {
         })
         setIsEditing(false)
         setError('')
+        router.refresh()
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to update job')
       }
@@ -139,20 +144,33 @@ export function JobEditForm({ job }: JobEditFormProps) {
             </p>
           </div>
           <div>
-            <span className="text-slate-500">Scheduled Date</span>
-            <p className="font-medium text-slate-800">{job.scheduled_date || '—'}</p>
-          </div>
-          <div>
-            <span className="text-slate-500">Scheduled Time</span>
-            <p className="font-medium text-slate-800">{job.scheduled_time?.slice(0, 5) || '—'}</p>
-          </div>
-          <div>
             <span className="text-slate-500">Client Requested Date</span>
             <p className="font-medium text-slate-800">{job.requested_date || '—'}</p>
           </div>
           <div>
             <span className="text-slate-500">Client Time Preference</span>
             <p className="font-medium text-slate-800 capitalize">{job.requested_time_preference || '—'}</p>
+          </div>
+          <div className="sm:col-span-2 rounded-lg border-2 border-black bg-[#EFB948]/20 neo-shadow-sm p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 mb-2">
+              Scheduled
+            </p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+              <div>
+                <span className="text-slate-600">Date</span>
+                <p className="font-medium text-slate-900">
+                  {job.scheduled_date
+                    ? format(new Date(job.scheduled_date + 'T12:00:00'), 'MMM d, yyyy')
+                    : '—'}
+                </p>
+              </div>
+              <div>
+                <span className="text-slate-600">Time</span>
+                <p className="font-medium text-slate-900">
+                  {formatTime12Hour(job.scheduled_time) || '—'}
+                </p>
+              </div>
+            </div>
           </div>
           {job.notes && (
             <div className="sm:col-span-2">
@@ -241,22 +259,6 @@ export function JobEditForm({ job }: JobEditFormProps) {
         </div>
       </div>
 
-      {/* Dispatch schedule */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="edit_sched_date">Scheduled Date</Label>
-          <Input id="edit_sched_date" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="edit_sched_time">Scheduled Time</Label>
-          <Input id="edit_sched_time" type="time" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="edit_duration">Duration (min)</Label>
-          <Input id="edit_duration" type="number" min="15" step="15" value={duration} onChange={(e) => setDuration(e.target.value)} />
-        </div>
-      </div>
-
       {/* Client preferences */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-1.5">
@@ -277,6 +279,27 @@ export function JobEditForm({ job }: JobEditFormProps) {
             <option value="anytime">Anytime</option>
             <option value="flexible">Flexible</option>
           </select>
+        </div>
+      </div>
+
+      {/* Dispatch schedule (frequently edited — highlighted) */}
+      <div className="rounded-lg border-2 border-black bg-[#EFB948]/20 neo-shadow-sm p-4 space-y-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">
+          Scheduled (frequently edited)
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="edit_sched_date">Scheduled Date</Label>
+            <Input id="edit_sched_date" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit_sched_time">Scheduled Time</Label>
+            <Input id="edit_sched_time" type="time" value={scheduledTime} onChange={(e) => setScheduledTime(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit_duration">Duration (min)</Label>
+            <Input id="edit_duration" type="number" min="15" step="15" value={duration} onChange={(e) => setDuration(e.target.value)} />
+          </div>
         </div>
       </div>
 

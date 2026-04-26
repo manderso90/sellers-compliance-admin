@@ -8,11 +8,13 @@ import { JobHistory } from '@/components/admin/jobs/JobHistory'
 import { DeleteJobDialog } from '@/components/admin/jobs/DeleteJobDialog'
 import { InspectorAssignment } from '@/components/admin/jobs/InspectorAssignment'
 import { ScheduleSuggestionPanel } from '@/components/admin/jobs/ScheduleSuggestionPanel'
+import { ScheduleSyncClient } from '@/components/admin/shared/ScheduleSyncClient'
 import { PaymentsSection } from '@/components/admin/inspections/PaymentsSection'
 import type { JobStatus } from '@/types/database'
 import { TERMINAL_STATUSES } from '@/services/job-lifecycle'
 import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react'
 import { format } from 'date-fns'
+import { formatTime12Hour } from '@/lib/utils/formatting'
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>
@@ -32,6 +34,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   return (
     <div className="space-y-6 max-w-3xl">
+      <ScheduleSyncClient />
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -50,7 +53,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
                 {format(new Date(job.scheduled_date + 'T12:00:00'), 'MMM d, yyyy')}
-                {job.scheduled_time && ` at ${job.scheduled_time.slice(0, 5)}`}
+                {job.scheduled_time && ` at ${formatTime12Hour(job.scheduled_time)}`}
               </span>
             )}
             <span className="flex items-center gap-1">
