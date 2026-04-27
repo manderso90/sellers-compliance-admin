@@ -24,6 +24,7 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
   if (isTerminal) return null
 
   function handleGenerate() {
+    setIsCollapsed(false)
     setError(null)
     setResult(null)
     setApplied(false)
@@ -101,25 +102,23 @@ export function ScheduleSuggestionPanel({ jobId, isTerminal }: ScheduleSuggestio
           <Sparkles className="w-4 h-4 text-[#FDE047]" />
           Smart Scheduling
         </button>
-        {!isCollapsed && (
-          <button
-            onClick={handleGenerate}
-            disabled={isPending}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-[#FDE047] text-black border-2 border-black rounded-md hover:bg-yellow-300 transition-colors disabled:opacity-50"
-          >
-            {isPending && !applyingId ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                Analyzing…
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-3.5 h-3.5" />
-                {result ? 'Refresh' : 'Get Suggestions'}
-              </>
-            )}
-          </button>
-        )}
+        <button
+          onClick={handleGenerate}
+          disabled={isPending}
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-[#FDE047] text-black border-2 border-black rounded-md hover:bg-yellow-300 transition-colors disabled:opacity-50"
+        >
+          {isPending && !applyingId ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Analyzing…
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-3.5 h-3.5" />
+              {result ? 'Refresh' : 'Get Suggestions'}
+            </>
+          )}
+        </button>
       </div>
 
       {!isCollapsed && (

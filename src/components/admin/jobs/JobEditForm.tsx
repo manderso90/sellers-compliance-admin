@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { updateJob } from '@/lib/actions/job-actions'
@@ -20,6 +20,15 @@ export function JobEditForm({ job }: JobEditFormProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const focusScheduledOnEditRef = useRef(false)
+
+  useEffect(() => {
+    if (isEditing && focusScheduledOnEditRef.current) {
+      const el = document.getElementById('edit_sched_date')
+      if (el instanceof HTMLInputElement) el.focus()
+      focusScheduledOnEditRef.current = false
+    }
+  }, [isEditing])
 
   const [title, setTitle] = useState(job.title)
   const [clientName, setClientName] = useState(job.client_name)
@@ -152,9 +161,23 @@ export function JobEditForm({ job }: JobEditFormProps) {
             <p className="font-medium text-slate-800 capitalize">{job.requested_time_preference || '—'}</p>
           </div>
           <div className="sm:col-span-2 rounded-lg border-2 border-black bg-[#EFB948]/20 neo-shadow-sm p-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 mb-2">
-              Scheduled
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-700">
+                Scheduled
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  focusScheduledOnEditRef.current = true
+                  setIsEditing(true)
+                }}
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 hover:text-slate-900 underline-offset-2 hover:underline"
+                aria-label="Edit scheduled date and time"
+              >
+                <Pencil className="w-3 h-3" />
+                Edit
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div>
                 <span className="text-slate-600">Date</span>
