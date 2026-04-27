@@ -13,7 +13,6 @@ import { Loader2 } from 'lucide-react'
 type PropertyType = 'single_family' | 'condo' | 'townhouse' | 'multi_family' | 'other'
 type CustomerType = 'agent' | 'broker' | 'transaction_coordinator' | 'seller' | 'escrow' | 'other'
 type ServiceType = 'standard' | 'expedited' | 'reinspection'
-type TimePreference = 'morning' | 'afternoon' | 'anytime'
 
 interface FormState {
   street_address: string
@@ -27,7 +26,7 @@ interface FormState {
   customer_type: CustomerType
   company_name: string
   requested_date: string
-  requested_time_preference: TimePreference
+  requested_time: string
   service_type: ServiceType
   includes_installation: boolean
   access_instructions: string
@@ -49,7 +48,7 @@ const initialForm: FormState = {
   customer_type: 'agent',
   company_name: '',
   requested_date: '',
-  requested_time_preference: 'anytime',
+  requested_time: '',
   service_type: 'standard',
   includes_installation: false,
   access_instructions: '',
@@ -87,12 +86,6 @@ const serviceTypeOptions: readonly [ServiceType, string][] = [
   ['standard', 'Standard'],
   ['expedited', 'Expedited'],
   ['reinspection', 'Reinspection'],
-]
-
-const timePreferenceOptions: readonly [TimePreference, string][] = [
-  ['morning', 'Morning'],
-  ['afternoon', 'Afternoon'],
-  ['anytime', 'Anytime'],
 ]
 
 function Pill<T extends string>({
@@ -157,7 +150,7 @@ function FormBody() {
           customer_type: form.customer_type,
           company_name: form.company_name || undefined,
           requested_date: form.requested_date || undefined,
-          requested_time_preference: form.requested_time_preference,
+          requested_time_preference: form.requested_time || undefined,
           service_type: form.service_type,
           includes_installation: form.includes_installation,
           access_instructions: form.access_instructions || undefined,
@@ -343,21 +336,15 @@ function FormBody() {
               />
             </div>
             <div>
-              <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                Time Preference
+              <Label htmlFor="requested_time" className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                Requested Time
               </Label>
-              <div className="flex gap-2 mt-1">
-                {timePreferenceOptions.map(([value, label]) => (
-                  <Pill
-                    key={value}
-                    value={value}
-                    label={label}
-                    name="requested_time_preference"
-                    checked={form.requested_time_preference === value}
-                    onSelect={(v) => set('requested_time_preference', v)}
-                  />
-                ))}
-              </div>
+              <Input
+                id="requested_time"
+                type="time"
+                value={form.requested_time}
+                onChange={(e) => set('requested_time', e.target.value)}
+              />
             </div>
           </div>
         </div>

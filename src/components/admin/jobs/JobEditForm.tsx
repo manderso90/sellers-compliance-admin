@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { Job } from '@/types/database'
-import { formatTime12Hour } from '@/lib/utils/formatting'
+import { formatTime12Hour, getRequestedTimeLabel } from '@/lib/utils/formatting'
 import { Loader2, Pencil, X } from 'lucide-react'
 
 interface JobEditFormProps {
@@ -40,7 +40,7 @@ export function JobEditForm({ job }: JobEditFormProps) {
   const [zipCode, setZipCode] = useState(job.zip_code)
   const [hasLockbox, setHasLockbox] = useState(job.has_lockbox)
   const [requestedDate, setRequestedDate] = useState(job.requested_date ?? '')
-  const [timePreference, setTimePreference] = useState(job.requested_time_preference ?? '')
+  const [requestedTime, setRequestedTime] = useState(job.requested_time_preference ?? '')
   const [scheduledDate, setScheduledDate] = useState(job.scheduled_date ?? '')
   const [scheduledTime, setScheduledTime] = useState(job.scheduled_time?.slice(0, 5) ?? '')
   const [duration, setDuration] = useState(String(job.estimated_duration_minutes))
@@ -57,7 +57,7 @@ export function JobEditForm({ job }: JobEditFormProps) {
     setZipCode(job.zip_code)
     setHasLockbox(job.has_lockbox)
     setRequestedDate(job.requested_date ?? '')
-    setTimePreference(job.requested_time_preference ?? '')
+    setRequestedTime(job.requested_time_preference ?? '')
     setScheduledDate(job.scheduled_date ?? '')
     setScheduledTime(job.scheduled_time?.slice(0, 5) ?? '')
     setDuration(String(job.estimated_duration_minutes))
@@ -91,7 +91,7 @@ export function JobEditForm({ job }: JobEditFormProps) {
           zip_code: zipCode.trim(),
           has_lockbox: hasLockbox,
           requested_date: requestedDate || undefined,
-          requested_time_preference: timePreference || undefined,
+          requested_time_preference: requestedTime || undefined,
           scheduled_date: scheduledDate,
           scheduled_time: scheduledTime,
           estimated_duration_minutes: parseInt(duration) || 60,
@@ -157,8 +157,8 @@ export function JobEditForm({ job }: JobEditFormProps) {
             <p className="font-medium text-slate-800">{job.requested_date || '—'}</p>
           </div>
           <div>
-            <span className="text-slate-500">Client Time Preference</span>
-            <p className="font-medium text-slate-800 capitalize">{job.requested_time_preference || '—'}</p>
+            <span className="text-slate-500">Client Requested Time</span>
+            <p className="font-medium text-slate-800">{getRequestedTimeLabel(job.requested_time_preference) || '—'}</p>
           </div>
           <div className="sm:col-span-2 rounded-lg border-2 border-black bg-[#EFB948]/20 neo-shadow-sm p-3">
             <div className="flex items-center justify-between mb-2">
@@ -289,19 +289,13 @@ export function JobEditForm({ job }: JobEditFormProps) {
           <Input id="edit_date" type="date" value={requestedDate} onChange={(e) => setRequestedDate(e.target.value)} />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="edit_time_pref">Client Time Preference</Label>
-          <select
-            id="edit_time_pref"
-            value={timePreference}
-            onChange={(e) => setTimePreference(e.target.value)}
-            className="w-full h-9 rounded-md border-2 border-black bg-transparent px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">No preference</option>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="anytime">Anytime</option>
-            <option value="flexible">Flexible</option>
-          </select>
+          <Label htmlFor="edit_requested_time">Client Requested Time</Label>
+          <Input
+            id="edit_requested_time"
+            type="time"
+            value={requestedTime}
+            onChange={(e) => setRequestedTime(e.target.value)}
+          />
         </div>
       </div>
 

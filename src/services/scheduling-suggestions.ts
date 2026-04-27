@@ -78,6 +78,19 @@ function scoreTimePreference(
   if (!preference || preference === 'anytime' || preference === 'flexible') {
     return 25
   }
+  // Exact-time preference (HH:MM or HH:MM:SS): proximity bands.
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(preference)) {
+    const toMinutes = (t: string): number => {
+      const [h, m] = t.split(':').map(Number)
+      return h * 60 + m
+    }
+    const diff = Math.abs(toMinutes(slotTime) - toMinutes(preference))
+    if (diff <= 30) return 25
+    if (diff <= 60) return 15
+    if (diff <= 120) return 8
+    return 0
+  }
+  // Legacy categorical (morning / afternoon).
   const hour = parseInt(slotTime.split(':')[0], 10)
   const isMorning = hour < 12
   if (preference === 'morning') return isMorning ? 25 : 0
@@ -215,7 +228,7 @@ export async function generateScheduleSuggestions(
         else if (regionResult === 'partial') reasons.push('Unrecognised city — partial region credit')
         else reasons.push(`Region mismatch: ${inspector.region} vs ${job.city}`)
 
-        if (timePreference === 25) reasons.push('Matches time preference')
+        if (timePreference >= 15) reasons.push('Matches requested time')
         else reasons.push('Outside preferred time window')
 
         candidates.push({

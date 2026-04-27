@@ -42,3 +42,15 @@ export function formatTime12Hour(time: string | null | undefined): string {
   const hour12 = h % 12 || 12
   return `${hour12}:${minute} ${period}`
 }
+
+/**
+ * Render a `requested_time_preference` value for read surfaces. Handles both
+ * the exact-time form (`HH:MM` or `HH:MM:SS`, written by the admin form
+ * post-2026-04-26) and the legacy categorical form (`morning`, `afternoon`,
+ * `anytime`, `flexible`) still produced by the public order flow.
+ */
+export function getRequestedTimeLabel(value: string | null | undefined): string {
+  if (!value) return ''
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(value)) return formatTime12Hour(value)
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}

@@ -4,14 +4,8 @@ import { useDraggable } from '@dnd-kit/core'
 import { cn } from '@/lib/utils'
 import { MapPin, Calendar, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
+import { getRequestedTimeLabel } from '@/lib/utils/formatting'
 import type { UnscheduledJob } from '@/lib/queries/dispatch'
-
-const TIME_LABELS: Record<string, string> = {
-  morning: 'AM',
-  afternoon: 'PM',
-  anytime: 'Any',
-  flexible: 'Flex',
-}
 
 function getCardRingClass(job: UnscheduledJob): string {
   if (job.requested_date) {
@@ -45,9 +39,7 @@ export function UnscheduledJobChip({ job }: { job: UnscheduledJob }) {
     ? format(new Date(job.requested_date + 'T12:00:00'), 'EEE M/d')
     : null
 
-  const timeLabel = job.requested_time_preference
-    ? TIME_LABELS[job.requested_time_preference] ?? null
-    : null
+  const timeLabel = getRequestedTimeLabel(job.requested_time_preference) || null
 
   const ringClass = getCardRingClass(job)
 

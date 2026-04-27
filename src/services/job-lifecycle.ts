@@ -41,6 +41,7 @@ export function getNextStatuses(currentStatus: JobStatus): JobStatus[] {
 
 const VALID_TITLES = ['Inspection', 'Work Completion'] as const
 const VALID_TIME_PREFERENCES = ['morning', 'afternoon', 'anytime', 'flexible'] as const
+const TIME_PATTERN = /^\d{2}:\d{2}(:\d{2})?$/
 const VALID_PROPERTY_TYPES = ['single_family', 'condo', 'townhouse', 'multi_family', 'other'] as const
 const VALID_CUSTOMER_TYPES = ['agent', 'broker', 'transaction_coordinator', 'seller', 'escrow', 'other'] as const
 const VALID_SERVICE_TYPES = ['standard', 'expedited', 'reinspection'] as const
@@ -86,9 +87,10 @@ export function validateJobInput(data: {
     data.requested_time_preference !== undefined &&
     data.requested_time_preference !== null &&
     data.requested_time_preference !== '' &&
-    !(VALID_TIME_PREFERENCES as readonly string[]).includes(data.requested_time_preference)
+    !(VALID_TIME_PREFERENCES as readonly string[]).includes(data.requested_time_preference) &&
+    !TIME_PATTERN.test(data.requested_time_preference)
   ) {
-    errors.push('Invalid time preference')
+    errors.push('Invalid requested time')
   }
 
   return { valid: errors.length === 0, errors }
@@ -154,9 +156,10 @@ export function validateIntakeInput(data: {
     data.requested_time_preference !== undefined &&
     data.requested_time_preference !== null &&
     data.requested_time_preference !== '' &&
-    !(VALID_TIME_PREFERENCES as readonly string[]).includes(data.requested_time_preference)
+    !(VALID_TIME_PREFERENCES as readonly string[]).includes(data.requested_time_preference) &&
+    !TIME_PATTERN.test(data.requested_time_preference)
   ) {
-    errors.push('Invalid time preference')
+    errors.push('Invalid requested time')
   }
 
   return { valid: errors.length === 0, errors }

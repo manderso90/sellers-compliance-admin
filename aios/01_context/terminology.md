@@ -25,7 +25,7 @@ A glossary of domain-specific terms used throughout Seller’s Compliance operat
 | **Service Type**      | The category of work: `Inspection`, `Work Completion`, `Installation`, etc. Stored as `service_type` on inspections.                                  |
 | **Unscheduled Queue** | The list of jobs that have been created but not yet scheduled or assigned to an inspector.                                                            |
 | **Dispatch Timeline** | The visual scheduling interface showing a day’s workload by inspector, allowing drag-and-drop scheduling and real-time adjustments.                  |
-| **Time Preference**   | A customer’s requested time window: `morning`, `afternoon`, `anytime`, or `flexible`.                                                                |
+| **Requested Time**    | The customer’s desired time. Stored on `inspections.requested_time_preference`. As of 2026-04-26 the admin forms write an exact `HH:MM` string (e.g., `14:30`); the public order flow may still write legacy categorical values (`morning`, `afternoon`, `anytime`, `flexible`). Read-side display should use `getRequestedTimeLabel(value)` from `lib/utils/formatting.ts`, which formats `HH:MM` as 12-hour and capitalizes legacy strings. |
 | **Reschedule**        | Changing the date or time of an existing job.                                                                                                        |
 | **Reassignment**      | Changing the assigned inspector for a job.                                                                                                           |
 
