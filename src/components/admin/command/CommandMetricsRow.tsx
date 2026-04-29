@@ -75,7 +75,7 @@ export function CommandMetricsRow({ stats }: { stats: CommandCenterStats }) {
         icon={CalendarCheck}
         iconColor="text-[#3b82f6]"
         iconBg="bg-blue-50"
-        href="/admin/dashboard?dateRange=today"
+        href="/admin/jobs?scope=today"
       />
       <BoldMetricCard
         title="This Week (Completed)"
@@ -84,7 +84,7 @@ export function CommandMetricsRow({ stats }: { stats: CommandCenterStats }) {
         icon={CheckCircle}
         iconColor="text-[#16a34a]"
         iconBg="bg-green-50"
-        href="/admin/dashboard?status=completed"
+        href="/admin/jobs?scope=week&status=completed"
       />
       <BoldMetricCard
         title="Unconfirmed"
@@ -94,7 +94,7 @@ export function CommandMetricsRow({ stats }: { stats: CommandCenterStats }) {
         iconColor={stats.unconfirmedCount > 0 ? 'text-[#D4AF37]' : 'text-[#A1A1AA]'}
         iconBg={stats.unconfirmedCount > 0 ? 'bg-[#FFF8E1]' : 'bg-[#FFFDF5]'}
         variant={stats.unconfirmedCount > 0 ? 'warning' : 'default'}
-        href="/admin/dashboard?status=requested"
+        href="/admin/jobs?status=requested"
       />
       <BoldMetricCard
         title="Unassigned"
@@ -104,7 +104,7 @@ export function CommandMetricsRow({ stats }: { stats: CommandCenterStats }) {
         iconColor={stats.unassignedCount > 0 ? 'text-[#C8102E]' : 'text-[#A1A1AA]'}
         iconBg={stats.unassignedCount > 0 ? 'bg-[#C8102E]/5' : 'bg-[#FFFDF5]'}
         variant={stats.unassignedCount > 0 ? 'danger' : 'default'}
-        href="/admin/dashboard?status=requested"
+        href="/admin/jobs?scope=unscheduled"
       />
     </div>
   )
