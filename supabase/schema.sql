@@ -85,7 +85,7 @@ create index if not exists idx_properties_geo
 -- Core record for a scheduled/completed job.
 --
 -- Important column semantics:
---   service_type              — tier: 'standard' | 'expedited' | 'reinspection'
+--   service_type              — tier: 'standard' | 'reinspection' | 'work'
 --   includes_installation     — boolean distinguishing Inspection from Work
 --                               Completion (NOT service_type)
 --   status                    — lifecycle state (see CHECK for full allow-list;
@@ -122,7 +122,7 @@ create table if not exists public.inspections (
   scheduled_end time,
   completed_at timestamptz,
   service_type text not null default 'standard'
-    check (service_type in ('standard','expedited','reinspection')),
+    check (service_type in ('standard','reinspection','work')),
   includes_installation boolean not null default false,
   access_instructions text,
   lockbox_code text,

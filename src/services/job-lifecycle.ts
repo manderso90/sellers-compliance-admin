@@ -44,7 +44,7 @@ const VALID_TIME_PREFERENCES = ['morning', 'afternoon', 'anytime', 'flexible'] a
 const TIME_PATTERN = /^\d{2}:\d{2}(:\d{2})?$/
 const VALID_PROPERTY_TYPES = ['single_family', 'condo', 'townhouse', 'multi_family', 'other'] as const
 const VALID_CUSTOMER_TYPES = ['agent', 'broker', 'transaction_coordinator', 'seller', 'escrow', 'other'] as const
-const VALID_SERVICE_TYPES = ['standard', 'expedited', 'reinspection'] as const
+const VALID_SERVICE_TYPES = ['standard', 'reinspection', 'work'] as const
 const MIN_DURATION_MINUTES = 15
 
 export type PropertyType = typeof VALID_PROPERTY_TYPES[number]

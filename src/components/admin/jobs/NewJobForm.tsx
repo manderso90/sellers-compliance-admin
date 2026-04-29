@@ -12,7 +12,7 @@ import { Loader2 } from 'lucide-react'
 
 type PropertyType = 'single_family' | 'condo' | 'townhouse' | 'multi_family' | 'other'
 type CustomerType = 'agent' | 'broker' | 'transaction_coordinator' | 'seller' | 'escrow' | 'other'
-type ServiceType = 'standard' | 'expedited' | 'reinspection'
+type ServiceType = 'standard' | 'reinspection' | 'work'
 
 interface FormState {
   street_address: string
@@ -84,8 +84,8 @@ const customerTypeOptions: readonly [CustomerType, string][] = [
 
 const serviceTypeOptions: readonly [ServiceType, string][] = [
   ['standard', 'Standard'],
-  ['expedited', 'Expedited'],
   ['reinspection', 'Reinspection'],
+  ['work', 'Work'],
 ]
 
 function Pill<T extends string>({
