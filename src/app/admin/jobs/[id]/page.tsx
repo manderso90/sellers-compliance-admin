@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import { getJobById, getJobStatusHistory, getActiveInspectors } from '@/lib/queries/jobs'
 import { getInspectionFinancials } from '@/lib/queries/payments'
+import { getActiveProducts } from '@/lib/queries/product-queries'
 import { JobStatusControl } from '@/components/admin/jobs/JobStatusControl'
 import { JobEditForm } from '@/components/admin/jobs/JobEditForm'
 import { JobHistory } from '@/components/admin/jobs/JobHistory'
@@ -10,6 +12,7 @@ import { InspectorAssignment } from '@/components/admin/jobs/InspectorAssignment
 import { ScheduleSuggestionPanel } from '@/components/admin/jobs/ScheduleSuggestionPanel'
 import { ScheduleSyncClient } from '@/components/admin/shared/ScheduleSyncClient'
 import { PaymentsSection } from '@/components/admin/inspections/PaymentsSection'
+import { InstallItemsSection } from '@/components/admin/inspections/InstallItemsSection'
 import type { JobStatus } from '@/types/database'
 import { TERMINAL_STATUSES } from '@/services/job-lifecycle'
 import { ArrowLeft, Calendar, MapPin, Clock } from 'lucide-react'
@@ -23,11 +26,13 @@ interface JobDetailPageProps {
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { id } = await params
 
-  const [job, history, inspectors, financials] = await Promise.all([
+  const supabase = await createClient()
+  const [job, history, inspectors, financials, products] = await Promise.all([
     getJobById(id),
     getJobStatusHistory(id),
     getActiveInspectors(),
     getInspectionFinancials(id),
+    getActiveProducts(supabase),
   ])
 
   if (!job) notFound()
@@ -105,6 +110,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       {/* Editable Fields */}
       <div className="bg-white border-2 border-black rounded-lg p-5 neo-shadow">
         <JobEditForm job={job} />
+      </div>
+
+      {/* Install Items */}
+      <div className="bg-white border-2 border-black rounded-lg p-5 neo-shadow">
+        <InstallItemsSection
+          inspectionId={job.id}
+          products={products}
+          lineItems={financials.lineItems}
+        />
       </div>
 
       {/* Payments */}
