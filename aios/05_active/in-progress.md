@@ -13,7 +13,6 @@ Active workstreams and their current state. Update this as work moves forward.
 
 ## Out of Scope (this sprint)
 
-- Deployment to Vercel (no project configured yet)
 - Test framework setup (Vitest/Playwright — tracked as tech debt T1)
 - SMS/notification integration
 - Multi-user role-based RLS enforcement
@@ -46,8 +45,11 @@ Active workstreams and their current state. Update this as work moves forward.
 
 ### Blocked / Waiting
 
-- **Git push from sandbox**: Cannot push from sandbox environment. Must push from local machine.
-- **Deployment**: No Vercel project configured yet. Not blocking development.
+- _None currently._
+
+### Deployment
+
+- **Configured on Vercel**: project `docside/sellers-compliance-admin`. Production domain **admin.sellerscompliance.com** deploys **from `main`** — pushing a feature branch only creates a Preview, not the live site. Verify with `vercel ls --prod`.
 
 ## Recent Completions
 
