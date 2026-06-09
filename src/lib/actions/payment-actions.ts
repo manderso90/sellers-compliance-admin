@@ -2,9 +2,12 @@
 
 import { requireAdmin } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
-import { headers } from 'next/headers'
 import { getStripe } from '@/lib/stripe'
 import { getInspectionPrice } from '@/lib/utils/pricing'
+
+// Post-payment pages live on the public site, not the auth-gated admin domain.
+// Customers must land somewhere reachable without an admin session.
+const PUBLIC_SITE_URL = 'https://sellerscompliance.com'
 
 export async function addPayment(
   inspectionId: string,
@@ -84,11 +87,6 @@ export async function createPaymentLink(
     ? `${property.street_address}${property.unit ? ` #${property.unit}` : ''}, ${property.city}`
     : 'Property'
 
-  const headersList = await headers()
-  const host = headersList.get('host') || 'localhost:3000'
-  const protocol = host.includes('localhost') ? 'http' : 'https'
-  const siteUrl = `${protocol}://${host}`
-
   const customerEmail = (inspection as { customers: { email: string | null } | null }).customers?.email || undefined
 
   try {
@@ -110,8 +108,8 @@ export async function createPaymentLink(
       metadata: {
         inspection_id: inspectionId,
       },
-      success_url: `${siteUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/payment/cancel`,
+      success_url: `${PUBLIC_SITE_URL}/payment/success`,
+      cancel_url: `${PUBLIC_SITE_URL}/payment/cancel`,
     })
 
     await supabase
