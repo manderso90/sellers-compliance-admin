@@ -37,6 +37,21 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   if (!job) notFound()
 
+  // Glanceable payment state, derived from the same financials the Payments card uses.
+  const { balanceDue, totalPaid } = financials
+  const paymentBadge =
+    balanceDue <= 0
+      ? { label: 'PAID', cls: 'bg-green-100 text-green-800 border-green-700' }
+      : totalPaid > 0
+        ? {
+            label: `PARTIAL — $${balanceDue.toFixed(2)} due`,
+            cls: 'bg-amber-100 text-amber-800 border-amber-600',
+          }
+        : {
+            label: `OUTSTANDING — $${balanceDue.toFixed(2)}`,
+            cls: 'bg-red-100 text-red-700 border-[#C8102E]',
+          }
+
   return (
     <div className="space-y-6 max-w-3xl">
       <ScheduleSyncClient />
@@ -72,7 +87,14 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </div>
         </div>
 
-        <DeleteJobDialog jobId={job.id} jobTitle={`${job.title} — ${job.address}`} />
+        <div className="flex flex-col items-end gap-3">
+          <span
+            className={`text-xs font-bold px-3 py-1 rounded-full border-2 neo-shadow-sm whitespace-nowrap ${paymentBadge.cls}`}
+          >
+            {paymentBadge.label}
+          </span>
+          <DeleteJobDialog jobId={job.id} jobTitle={`${job.title} — ${job.address}`} />
+        </div>
       </div>
 
       {/* Status + Assignment */}
