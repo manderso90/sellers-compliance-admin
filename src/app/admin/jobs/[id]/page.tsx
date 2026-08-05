@@ -134,12 +134,13 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <JobEditForm job={job} />
       </div>
 
-      {/* Install Items */}
+      {/* Invoice (inspection fee + install items) */}
       <div className="bg-white border-2 border-black rounded-lg p-5 neo-shadow">
         <InstallItemsSection
           inspectionId={job.id}
           products={products}
           lineItems={financials.lineItems}
+          inspectionFee={financials.inspectionFee}
         />
       </div>
 

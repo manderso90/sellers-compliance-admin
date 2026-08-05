@@ -125,7 +125,8 @@ Oversee system performance, workload distribution, and revenue tracking.
 * Stripe-powered checkout for online payments (`/api/stripe/create-checkout`)
 * Webhook-based payment confirmation (`/api/stripe/webhook`)
 * Product catalog with part cost / labor cost breakdown (`products` table)
-* Line item tracking per inspection (`install_line_items` table)
+* Editable invoice on the job detail page: adjustable Inspection Fee (0 = waived) plus full CRUD install line items (`install_line_items` table)
+* Work-only jobs (`service_type = 'work'`) carry no inspection fee by default
 * Payment recording and status tracking (`payments` table)
 
 ---

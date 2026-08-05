@@ -4,6 +4,12 @@
  * Standard (SFR / Condo / Townhouse): $125
  * ADU surcharge: +$15 per ADU
  * Apartment building (multi_family): $125 + $15 per unit
+ *
+ * An explicit inspections.price always wins — including 0, which is how
+ * work-only jobs (service_type 'work') waive the inspection fee. Only a
+ * NULL price falls back to the computed default.
+ * Mirrored in Sellers-Compliance/src/lib/utils/pricing.ts (Stripe webhook
+ * uses it for payment_status) — keep both copies in sync.
  */
 
 const BASE_PRICE = 125
@@ -29,7 +35,7 @@ export function getInspectionPrice(inspection: {
     unit_count: number | null
   } | null
 }): number {
-  if (inspection.price != null && Number(inspection.price) > 0) {
+  if (inspection.price != null) {
     return Number(inspection.price)
   }
   if (!inspection.properties) return BASE_PRICE

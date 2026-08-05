@@ -60,7 +60,7 @@ A glossary of domain-specific terms used throughout Seller’s Compliance operat
 
 | Term                       | Definition                                                                                                     |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Invoice**                | An itemized billing record generated for inspection and/or work completion services.                           |
+| **Invoice**                | An itemized billing record generated for inspection and/or work completion services. On the Job Detail Page: an editable Inspection Fee (`inspections.price`; explicit 0 = waived, NULL = computed default, work-only jobs default to 0) plus CRUD install line items. |
 | **Payment Status**         | The state of payment for a job: tracked via the `payments` table (amount, method, paid_at).                    |
 | **Escrow Payment**         | Payment processed through escrow, typically via wire, courier, or check.                                       |
 | **Online Payment**         | Payment made via credit card or payment link (e.g., Stripe).                                                   |

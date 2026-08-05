@@ -19,6 +19,7 @@ export async function getInspectionFinancials(inspectionId: string): Promise<{
   balanceDue: number
   totalPaid: number
   invoiceTotal: number
+  inspectionFee: number
 }> {
   const supabase = await createClient()
 
@@ -64,5 +65,6 @@ export async function getInspectionFinancials(inspectionId: string): Promise<{
     balanceDue,
     totalPaid,
     invoiceTotal,
+    inspectionFee,
   }
 }

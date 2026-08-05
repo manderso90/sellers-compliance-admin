@@ -199,6 +199,10 @@ async function createJobOrThrow(data: CreateJobInput): Promise<string> {
     dispatch_status: 'unscheduled',
     service_type: data.service_type,
     includes_installation: data.includes_installation,
+    // Work-only jobs carry no inspection fee; an explicit 0 stops the
+    // pricing fallback from charging the computed default. Editable later
+    // via the Invoice section on the job detail page.
+    price: data.service_type === 'work' ? 0 : null,
     requested_date: data.requested_date?.trim() || null,
     requested_time_preference: data.requested_time_preference?.trim() || null,
     access_instructions: data.access_instructions?.trim() || null,

@@ -29,6 +29,26 @@ export async function addPayment(
   revalidatePath(`/admin/jobs/${inspectionId}`)
 }
 
+/**
+ * Set the inspection fee for a job (writes inspections.price). 0 is valid —
+ * it waives the fee (work-only jobs). Clamped to >= 0.
+ */
+export async function updateInspectionFee(inspectionId: string, amount: number) {
+  const { supabase } = await requireAdmin()
+
+  const fee = Number(amount)
+  if (!Number.isFinite(fee) || fee < 0) throw new Error('Fee must be a non-negative number')
+
+  const { error } = await supabase
+    .from('inspections')
+    .update({ price: fee })
+    .eq('id', inspectionId)
+
+  if (error) throw error
+
+  revalidatePath(`/admin/jobs/${inspectionId}`)
+}
+
 export async function deletePayment(paymentId: string, inspectionId: string) {
   const { supabase } = await requireAdmin()
 
@@ -99,7 +119,7 @@ export async function createPaymentLink(
             currency: 'usd',
             unit_amount: Math.round(balanceDue * 100),
             product_data: {
-              name: `Compliance Inspection — ${address}`,
+              name: `${inspection.service_type === 'work' ? 'Work Completion' : 'Compliance Inspection'} — ${address}`,
             },
           },
           quantity: 1,

@@ -14,15 +14,17 @@ import {
 import { Plus, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react'
 import { formatCurrencyPrecise } from '@/lib/utils/formatting'
 import { addLineItem, updateLineItem, deleteLineItem } from '@/lib/actions/line-item-actions'
+import { updateInspectionFee } from '@/lib/actions/payment-actions'
 import type { Product, InstallLineItem } from '@/types/database'
 
 interface InstallItemsSectionProps {
   inspectionId: string
   products: Product[]
   lineItems: InstallLineItem[]
+  inspectionFee: number
 }
 
-export function InstallItemsSection({ inspectionId, products, lineItems }: InstallItemsSectionProps) {
+export function InstallItemsSection({ inspectionId, products, lineItems, inspectionFee }: InstallItemsSectionProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -36,6 +38,10 @@ export function InstallItemsSection({ inspectionId, products, lineItems }: Insta
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editQty, setEditQty] = useState('1')
   const [editPrice, setEditPrice] = useState('')
+
+  // Inspection fee edit state
+  const [editingFee, setEditingFee] = useState(false)
+  const [feeInput, setFeeInput] = useState('')
 
   // Only real install products — discounts are rendered/handled separately in the catalog.
   const catalog = products.filter((p) => p.category !== 'discount')
@@ -96,11 +102,21 @@ export function InstallItemsSection({ inspectionId, products, lineItems }: Insta
     })
   }
 
+  function handleFeeSave() {
+    const fee = parseFloat(feeInput)
+    if (isNaN(fee) || fee < 0) return
+    startTransition(async () => {
+      await updateInspectionFee(inspectionId, fee)
+      setEditingFee(false)
+      router.refresh()
+    })
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-          Install Items
+          Invoice
         </h2>
         {!showAdd && (
           <Button
@@ -114,6 +130,64 @@ export function InstallItemsSection({ inspectionId, products, lineItems }: Insta
           </Button>
         )}
       </div>
+
+      {/* Inspection fee — editable; 0 waives it (work-only jobs) */}
+      {editingFee ? (
+        <div className="flex items-center gap-2 p-2.5 bg-[#FFFDF5] rounded-xl border-2 border-[#2B2B2B]">
+          <span className="text-sm font-medium text-[#2B2B2B] flex-1">Inspection Fee</span>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            value={feeInput}
+            onChange={(e) => setFeeInput(e.target.value)}
+            className="h-8 w-24 text-sm text-right"
+          />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 w-6 p-0 text-[#16a34a]"
+            onClick={handleFeeSave}
+            disabled={isPending}
+          >
+            <Check className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 w-6 p-0 text-[#A1A1AA]"
+            onClick={() => setEditingFee(false)}
+          >
+            <X className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between p-2.5 bg-[#FFFDF5] rounded-xl border-2 border-[#2B2B2B]/10">
+          <div className="space-y-0.5">
+            <span className="text-sm font-medium text-[#2B2B2B]">Inspection Fee</span>
+            {inspectionFee === 0 && (
+              <p className="text-xs text-[#A1A1AA]">Waived — work-only</p>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-semibold text-[#2B2B2B] tabular-nums mr-1">
+              {formatCurrencyPrecise(inspectionFee)}
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 w-6 p-0"
+              onClick={() => {
+                setFeeInput(String(inspectionFee))
+                setEditingFee(true)
+              }}
+              disabled={isPending}
+            >
+              <Pencil className="w-3 h-3 text-[#A1A1AA]" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Line item rows */}
       {lineItems.length > 0 ? (
@@ -273,12 +347,20 @@ export function InstallItemsSection({ inspectionId, products, lineItems }: Insta
         </div>
       )}
 
-      {/* Running install total */}
-      <div className="flex items-center justify-between pt-2 border-t-2 border-[#2B2B2B]/10">
-        <span className="text-sm text-[#71717A]">Install Total</span>
-        <span className="text-sm font-semibold text-[#2B2B2B] tabular-nums">
-          {formatCurrencyPrecise(installTotal)}
-        </span>
+      {/* Totals */}
+      <div className="space-y-1 pt-2 border-t-2 border-[#2B2B2B]/10">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-[#71717A]">Install Total</span>
+          <span className="text-sm font-semibold text-[#2B2B2B] tabular-nums">
+            {formatCurrencyPrecise(installTotal)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-[#2B2B2B]">Invoice Total</span>
+          <span className="text-sm font-bold text-[#2B2B2B] tabular-nums">
+            {formatCurrencyPrecise(inspectionFee + installTotal)}
+          </span>
+        </div>
       </div>
     </div>
   )
