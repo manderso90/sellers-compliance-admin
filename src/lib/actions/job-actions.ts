@@ -15,9 +15,10 @@ type StatusHistoryInsert = Database['public']['Tables']['inspection_status_histo
 
 /**
  * Surface Postgres errors with their code/message in server logs, then
- * re-throw a short user-safe summary so the form banner can display
- * "Database error (23514) during createJob.insertInspection" instead of
- * the production RSC-scrubbed generic string.
+ * re-throw a short user-safe summary. NOTE: production Next.js scrubs the
+ * message from any error THROWN across the server-action boundary — callers
+ * that need the summary shown in the UI must catch it server-side and return
+ * it as data (see createJob).
  */
 function surfacePgError(err: unknown, context: string): never {
   const pg = err as { code?: string; message?: string; details?: string | null }
@@ -137,7 +138,22 @@ export interface CreateJobInput {
   public_notes?: string
 }
 
-export async function createJob(data: CreateJobInput): Promise<{ id: string }> {
+export type CreateJobResult = { id: string; error?: never } | { id?: never; error: string }
+
+/**
+ * Returns { error } instead of throwing: thrown errors lose their message at
+ * the server-action boundary in production builds, so the form banner would
+ * only ever show the generic RSC error string.
+ */
+export async function createJob(data: CreateJobInput): Promise<CreateJobResult> {
+  try {
+    return { id: await createJobOrThrow(data) }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed to create job' }
+  }
+}
+
+async function createJobOrThrow(data: CreateJobInput): Promise<string> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -211,7 +227,7 @@ export async function createJob(data: CreateJobInput): Promise<{ id: string }> {
   revalidatePath('/admin/jobs')
   revalidatePath('/admin/dispatch')
 
-  return { id: newInsp.id }
+  return newInsp.id
 }
 
 export async function updateJobStatus(jobId: string, newStatus: JobStatus) {

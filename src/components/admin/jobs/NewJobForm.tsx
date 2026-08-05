@@ -159,6 +159,10 @@ function FormBody() {
           listing_agent_name: form.listing_agent_name || undefined,
           public_notes: form.public_notes || undefined,
         })
+        if (result.error) {
+          setError(result.error)
+          return
+        }
         router.push(`/admin/jobs/${result.id}`)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create job')

@@ -115,8 +115,13 @@ create table if not exists public.inspections (
       'cancelled'
     )),
   requested_date date,
+  -- Legacy categorical values (public /order flow) OR exact time 'HH:MM[:SS]'
+  -- (admin forms since 2026-04-26). Regex mirrors TIME_PATTERN in
+  -- services/job-lifecycle.ts. Widened 2026-08-05 — the old categorical-only
+  -- CHECK rejected every admin job created with an exact requested time.
   requested_time_preference text
-    check (requested_time_preference in ('morning','afternoon','anytime','flexible')),
+    check (requested_time_preference in ('morning','afternoon','anytime','flexible')
+           or requested_time_preference ~ '^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$'),
   scheduled_date date,
   scheduled_time time,
   scheduled_end time,
