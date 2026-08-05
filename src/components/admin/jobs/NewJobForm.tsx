@@ -85,7 +85,7 @@ const customerTypeOptions: readonly [CustomerType, string][] = [
 const serviceTypeOptions: readonly [ServiceType, string][] = [
   ['standard', 'Standard'],
   ['reinspection', 'Reinspection'],
-  ['work', 'Work'],
+  ['work', 'Work Only'],
 ]
 
 function Pill<T extends string>({
