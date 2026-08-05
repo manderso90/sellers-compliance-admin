@@ -110,7 +110,7 @@ create table if not exists public.inspections (
       'work_in_progress',
       'completed',
       'no_show',
-      'hold',
+      'on_hold',  -- renamed from 'hold' 2026-08-05; code always used 'on_hold'
       'needs_rescheduling',
       'cancelled'
     )),
